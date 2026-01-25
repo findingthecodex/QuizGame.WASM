@@ -35,10 +35,8 @@ jobs:
     - name: Publish
       run: dotnet publish --no-build --configuration Release --output ./publish
       
-    - name: Change base tag in index.html and fix 404.html redirect
-      run: |
-        sed -i 's|<base href="/" />|<base href="/QuizGame.WASM/" />|g' publish/wwwroot/index.html
-        sed -i "s|content=\"0;URL='/'\"|content=\"0;URL='/QuizGame.WASM/'\"|g" publish/wwwroot/404.html
+    - name: Change base tag in index.html
+      run: sed -i 's|<base href="/" />|<base href="/QuizGame.WASM/" />|g' publish/wwwroot/index.html
       
     - name: Add .nojekyll file
       run: touch publish/wwwroot/.nojekyll
