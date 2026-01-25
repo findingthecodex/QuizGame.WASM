@@ -1,0 +1,115 @@
+@page "/categories"
+@inject NavigationManager Nav
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 15rem;">
+
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-6">
+        🎯 Choose a Category
+    </MudText>
+
+    <MudButton
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="QuizGaming"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Gaming 🎮
+    </MudButton>
+    
+    <MudButton
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="SportCategories"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Sport 🥊
+    </MudButton>
+
+    <MudButton
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="Animals"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+
+        Svenska Djur 🐶
+    </MudButton>
+    
+    <MudButton
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="ProgrammingCategories"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Programming 💻
+    </MudButton>
+
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+    private void QuizGaming()
+    {
+        Nav.NavigateTo("/quiz/gaming");
+    }
+
+    private void ProgrammingCategories()
+    {
+        Nav.NavigateTo("/programmingcategories");
+    }
+
+    private void Animals()
+    {
+        Nav.NavigateTo("/quiz/animals");
+    }
+
+    private void SportCategories()
+    {
+        Nav.NavigateTo("/sportcategories");
+    }
+}

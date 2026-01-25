@@ -1,0 +1,361 @@
+@page "/quiz/oopadvanced"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        OOP Advanced
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons - multi answers
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+
+        questions = questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+            {
+                Question = q.Question,
+
+                // Kopiera båda (för säkerhets skull)
+                CorrectAnswer = q.CorrectAnswer,
+                CorrectAnswers = q.CorrectAnswers.ToList(),
+
+                Answers = q.Answers
+                    .OrderBy(a => rnd.Next())
+                    .ToList()
+            })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+{
+    new QuizQuestion
+    {
+        Question = "OOP – Komposition framför arv. Vilka påståenden stämmer?",
+        Answers = new()
+        {
+            "Ger lösare koppling",
+            "Ökar utbytbarhet",
+            "Minskar fragile base class-risk",
+            "Garanterar bättre CPU-prestanda"
+        },
+        CorrectAnswers = new()
+        {
+            "Ger lösare koppling",
+            "Ökar utbytbarhet",
+            "Minskar fragile base class-risk"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Varför arbetar vi med feature-branch och pull request?",
+        Answers = new()
+        {
+            "Möjliggör granskning och tydlig historik",
+            "Krävs av Visual Studio",
+            "Minskar repo-storlek",
+            "Eliminerar alla konflikter"
+        },
+        CorrectAnswers = new()
+        {
+            "Möjliggör granskning och tydlig historik"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vad gör await i en endpoint?",
+        Answers = new()
+        {
+            "Frisläpper kontrollen tills Task är klar",
+            "Startar alltid en ny tråd",
+            "Blockerar tråden",
+            "Kör allt parallellt"
+        },
+        CorrectAnswers = new()
+        {
+            "Frisläpper kontrollen tills Task är klar"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken statuskod används när en POST skapar en resurs?",
+        Answers = new()
+        {
+            "201 Created",
+            "200 OK",
+            "204 No Content",
+            "409 Conflict"
+        },
+        CorrectAnswers = new()
+        {
+            "201 Created"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilka påståenden stämmer om Minimal API?",
+        Answers = new()
+        {
+            "Låg boilerplate",
+            "Endpoints definieras som lambdas",
+            "Kan dokumenteras i Swagger",
+            "Ska innehålla affärslogik"
+        },
+        CorrectAnswers = new()
+        {
+            "Låg boilerplate",
+            "Endpoints definieras som lambdas",
+            "Kan dokumenteras i Swagger"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vad innebär fail fast?",
+        Answers = new()
+        {
+            "Stoppa fel tidigt med validering",
+            "Ignorera fel",
+            "Vänta till databasen",
+            "Logga utan åtgärd"
+        },
+        CorrectAnswers = new()
+        {
+            "Stoppa fel tidigt med validering"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "När används CancellationToken?",
+        Answers = new()
+        {
+            "För att kunna avbryta anrop",
+            "För bättre cache",
+            "För parallell körning",
+            "För serialisering"
+        },
+        CorrectAnswers = new()
+        {
+            "För att kunna avbryta anrop"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Varför ska Domain inte känna till HTTP?",
+        Answers = new()
+        {
+            "För att vara oberoende av teknik",
+            "För bättre prestanda",
+            "För att undvika databaser",
+            "För enklare UI"
+        },
+        CorrectAnswers = new()
+        {
+            "För att vara oberoende av teknik"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vad är fel med att returnera Ok() vid skapad resurs?",
+        Answers = new()
+        {
+            "Borde returnera 201 Created med Location",
+            "Borde returnera 204",
+            "Borde returnera 409",
+            "Borde returnera 500"
+        },
+        CorrectAnswers = new()
+        {
+            "Borde returnera 201 Created med Location"
+        }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Hur projekterar man produkter korrekt med LINQ?",
+        Answers = new()
+        {
+            "Where, OrderBy, ThenBy, Select",
+            "Foreach utan filter",
+            "Endast Select",
+            "GroupBy först"
+        },
+        CorrectAnswers = new()
+        {
+            "Where, OrderBy, ThenBy, Select"
+        }
+    }
+        
+    };
+    
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        var correctAnswers = questions[currentQuestion]
+            .GetCorrectAnswers()
+            .ToList();
+
+        if (correctAnswers.Contains(answer))
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            var correctText = string.Join(", ", correctAnswers);
+
+            feedbackMessage = $"Wrong 😢 Correct answer: {correctText}";
+            feedbackColor = Color.Error;
+        }
+    }
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}

@@ -1,0 +1,302 @@
+@page "/quiz/gaming"
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        🎮 Gaming Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+    {
+        new QuizQuestion
+        {
+            Question = "What year was PlayStation 1 released?",
+            CorrectAnswer = "1994",
+            Answers = new() { "1994", "1996", "2000", "2003" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which company created Xbox?",
+            CorrectAnswer = "Microsoft",
+            Answers = new() { "Sony", "Nintendo", "Microsoft", "EA" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game features the character Kratos?",
+            CorrectAnswer = "God of War",
+            Answers = new() { "Dark Souls", "God of War", "Assassin's Creed", "Skyrim" }
+        },
+        new QuizQuestion
+        {
+            Question = "What year was the first Xbox released?",
+            CorrectAnswer = "2001",
+            Answers = new() { "1999", "2000", "2001", "2003" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which company created Fortnite?",
+            CorrectAnswer = "Epic Games",
+            Answers = new() { "Valve", "Epic Games", "Ubisoft", "EA" }
+        },
+        new QuizQuestion
+        {
+            Question = "What is the best-selling video game of all time?",
+            CorrectAnswer = "Minecraft",
+            Answers = new() { "GTA V", "Minecraft", "Tetris", "Fortnite" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which console was released first?",
+            CorrectAnswer = "PlayStation 1",
+            Answers = new() { "Xbox", "PlayStation 1", "Nintendo 64", "GameCube" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game series features Master Chief?",
+            CorrectAnswer = "Halo",
+            Answers = new() { "Call of Duty", "Halo", "Battlefield", "Destiny" }
+        },
+        new QuizQuestion
+        {
+            Question = "What company owns PlayStation?",
+            CorrectAnswer = "Sony",
+            Answers = new() { "Microsoft", "Nintendo", "Sony", "Samsung" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game is set in the world of Hyrule?",
+            CorrectAnswer = "The Legend of Zelda",
+            Answers = new() { "Final Fantasy", "The Legend of Zelda", "Elden Ring", "Dark Souls" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game popularized the Battle Royale genre?",
+            CorrectAnswer = "PUBG",
+            Answers = new() { "Fortnite", "Apex Legends", "PUBG", "Warzone" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which company created the Steam platform?",
+            CorrectAnswer = "Valve",
+            Answers = new() { "EA", "Ubisoft", "Valve", "Epic Games" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game engine is used to develop Fortnite?",
+            CorrectAnswer = "Unreal Engine",
+            Answers = new() { "Unity", "Frostbite", "Unreal Engine", "CryEngine" }
+        },
+        new QuizQuestion
+        {
+            Question = "What is the name of the continent in The Witcher 3?",
+            CorrectAnswer = "The Continent",
+            Answers = new() { "Nilfgaard", "Skellige", "The Continent", "Temeria" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which Soulsborne game was developed by FromSoftware but published by Activision?",
+            CorrectAnswer = "Sekiro: Shadows Die Twice",
+            Answers = new() { "Dark Souls III", "Bloodborne", "Sekiro", "Elden Ring" }
+        },
+        new QuizQuestion
+        {
+            Question = "What is the maximum level in World of Warcraft: Dragonflight?",
+            CorrectAnswer = "70",
+            Answers = new() { "60", "70", "80", "75" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which company originally created the Diablo franchise?",
+            CorrectAnswer = "Blizzard North",
+            Answers = new() { "Blizzard North", "Bethesda", "Valve", "BioWare" }
+        },
+        new QuizQuestion
+        {
+            Question = "What is the name of Kratos' son in God of War (2018)?",
+            CorrectAnswer = "Atreus",
+            Answers = new() { "Loki", "Atreus", "Baldur", "Tyr" }
+        },
+        new QuizQuestion
+        {
+            Question = "Which game introduced the Battle Pass system to mainstream gaming?",
+            CorrectAnswer = "Fortnite",
+            Answers = new() { "PUBG", "Fortnite", "Apex Legends", "Warzone" }
+        },
+        new QuizQuestion
+        {
+            Question = "What is the name of the AI antagonist in Portal?",
+            CorrectAnswer = "GLaDOS",
+            Answers = new() { "HAL 9000", "Atlas", "GLaDOS", "Cortana" }
+        }
+    };
+
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}

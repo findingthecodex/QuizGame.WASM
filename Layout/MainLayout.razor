@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+
+
+<MudLayout>
+
+    <MudAppBar Color="Color.Dark" Dense="true" Elevation="0">
+        <a href="/" style="text-decoration:none; color: inherit;">
+            <MudText Typo="Typo.subtitle1">
+                QuizGame ⚔️
+            </MudText>
+        </a>
+    </MudAppBar>
+
+    <MudMainContent Class="p-6">
+        @Body
+    </MudMainContent>
+
+</MudLayout>

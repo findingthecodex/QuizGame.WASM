@@ -1,0 +1,59 @@
+﻿@page "/"
+@inject NavigationManager Nav
+@using MudBlazor
+
+<div style="
+    min-height: 92vh; 
+    display: flex; 
+    justify-content: center;   /* centrerar horisontellt */
+    align-items: flex-start;  /* flyttar upp till toppen */
+    text-align: center;
+    padding-top: 15rem;">
+
+    <div>
+        <MudText Typo="Typo.h1" Class="mb-3">
+            Welcome to QuizGame!
+        </MudText>
+        
+        <MudText Typo="Typo.subtitle1" Class="mb-5">
+            Test your knowledge and have fun. Made by FindingTheCode! 🎉
+        </MudText>
+
+        <MudButton 
+            Size="Size.Large" 
+            Variant="Variant.Filled" 
+            Class="glow-button"
+            Color="Color.Primary"
+            OnClick="StartQuiz"
+            Style="padding: 16px 40px; font-size: 1.1rem; border-radius: 12px;">
+    
+            Start Quiz 🎮
+        </MudButton>
+        
+
+
+    </div>
+
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+
+@code {
+    private void StartQuiz()
+    {
+        Nav.NavigateTo("/categories");
+    }
+}

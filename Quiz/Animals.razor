@@ -1,0 +1,308 @@
+@page "/quiz/animals"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        🐶 Svenska Djur Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+    {
+       
+        new QuizQuestion
+{
+    Question = "Vilket svenskt djur byter färg på pälsen mellan sommar och vinter?",
+    CorrectAnswer = "Fjällräv",
+    Answers = new() { "Hermelin", "Fjällräv", "Lodjur", "Utter" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur är mest anpassat för ett liv i vatten?",
+    CorrectAnswer = "Utter",
+    Answers = new() { "Mink", "Utter", "Bäver", "Grävling" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan lukta sig till mat flera kilometer bort?",
+    CorrectAnswer = "Björn",
+    Answers = new() { "Älg", "Björn", "Räv", "Mård" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur har klor som inte går att dra in?",
+    CorrectAnswer = "Hund",
+    Answers = new() { "Katt", "Hund", "Lodjur", "Räv" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan simma längst sträckor i kallt vatten?",
+    CorrectAnswer = "Säl",
+    Answers = new() { "Utter", "Säl", "Mink", "Bäver" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur lever ofta i par resten av livet?",
+    CorrectAnswer = "Trana",
+    Answers = new() { "Svala", "Trana", "Skata", "Kråka" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur använder ekolokalisering?",
+    CorrectAnswer = "Fladdermus",
+    Answers = new() { "Uggla", "Fladdermus", "Säl", "Delfin" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur är mest aktivt i skymning och gryning?",
+    CorrectAnswer = "Rådjur",
+    Answers = new() { "Älg", "Rådjur", "Hare", "Grävling" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan gräva gångar flera meter under marken?",
+    CorrectAnswer = "Grävling",
+    Answers = new() { "Räv", "Grävling", "Mullvad", "Igelkott" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan stanna under vattnet i över 20 minuter?",
+    CorrectAnswer = "Säl",
+    Answers = new() { "Utter", "Bäver", "Säl", "Mink" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan höra ljud som människor inte uppfattar?",
+    CorrectAnswer = "Uggla",
+    Answers = new() { "Hök", "Uggla", "Falk", "Korp" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur har giftiga tänder?",
+    CorrectAnswer = "Huggorm",
+    Answers = new() { "Snok", "Huggorm", "Ödla", "Skogsorm" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur har den starkaste bitkraften i Sverige?",
+    CorrectAnswer = "Björn",
+    Answers = new() { "Varg", "Björn", "Grävling", "Lodjur" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur lever ofta i kolonier?",
+    CorrectAnswer = "Säl",
+    Answers = new() { "Utter", "Säl", "Mink", "Bäver" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan känna vibrationer i marken?",
+    CorrectAnswer = "Mullvad",
+    Answers = new() { "Mullvad", "Grävling", "Hare", "Igelkott" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur är mest anpassat för kyla?",
+    CorrectAnswer = "Myskoxe",
+    Answers = new() { "Ren", "Myskoxe", "Björn", "Varg" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan hoppa längst i förhållande till sin storlek?",
+    CorrectAnswer = "Loppa",
+    Answers = new() { "Groda", "Kanin", "Loppa", "Mus" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur har bäst mörkerseende?",
+    CorrectAnswer = "Uggla",
+    Answers = new() { "Räv", "Uggla", "Älg", "Hjort" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kan överleva i extrema fjällmiljöer?",
+    CorrectAnswer = "Fjällräv",
+    Answers = new() { "Hermelin", "Fjällräv", "Mård", "Utter" }
+},
+new QuizQuestion
+{
+    Question = "Vilket djur kommunicerar med doftsignaler?",
+    CorrectAnswer = "Varg",
+    Answers = new() { "Räv", "Varg", "Björn", "Lodjur" }
+}
+        
+    };
+
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}

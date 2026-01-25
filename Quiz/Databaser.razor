@@ -1,0 +1,307 @@
+@page "/quiz/databaser"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        Database Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+    {
+        new QuizQuestion
+{
+    Question = "What does SQL stand for?",
+    CorrectAnswer = "Structured Query Language",
+    Answers = new() { "Simple Query Language", "Structured Query Language", "Standard Question Logic", "System Query Language" }
+},
+new QuizQuestion
+{
+    Question = "What is a primary key?",
+    CorrectAnswer = "A unique identifier for a record",
+    Answers = new() { "A foreign reference", "A table name", "A unique identifier for a record", "A database type" }
+},
+new QuizQuestion
+{
+    Question = "What is a foreign key?",
+    CorrectAnswer = "A reference to a primary key in another table",
+    Answers = new() { "A unique ID", "A reference to a primary key in another table", "A table name", "A database index" }
+},
+new QuizQuestion
+{
+    Question = "What does CRUD stand for?",
+    CorrectAnswer = "Create, Read, Update, Delete",
+    Answers = new() { "Copy, Run, Update, Delete", "Create, Read, Update, Delete", "Connect, Read, Use, Drop", "Create, Remove, Upload, Download" }
+},
+new QuizQuestion
+{
+    Question = "What is an ER diagram used for?",
+    CorrectAnswer = "To model database structure",
+    Answers = new() { "To write SQL", "To design UI", "To model database structure", "To encrypt data" }
+},
+new QuizQuestion
+{
+    Question = "What is normalization?",
+    CorrectAnswer = "Reducing data redundancy",
+    Answers = new() { "Encrypting data", "Reducing data redundancy", "Backing up data", "Deleting duplicates" }
+},
+new QuizQuestion
+{
+    Question = "What is a relational database?",
+    CorrectAnswer = "A database with tables and relationships",
+    Answers = new() { "A file system", "A NoSQL database", "A database with tables and relationships", "A cloud service" }
+},
+new QuizQuestion
+{
+    Question = "Which SQL command is used to retrieve data?",
+    CorrectAnswer = "SELECT",
+    Answers = new() { "GET", "FETCH", "SELECT", "READ" }
+},
+new QuizQuestion
+{
+    Question = "Which SQL command is used to add data?",
+    CorrectAnswer = "INSERT",
+    Answers = new() { "ADD", "INSERT", "CREATE", "PUSH" }
+},
+new QuizQuestion
+{
+    Question = "What is a DbContext in Entity Framework?",
+    CorrectAnswer = "A class that manages database connections",
+    Answers = new() { "A SQL command", "A table", "A class that manages database connections", "A migration file" }
+},
+new QuizQuestion
+{
+    Question = "What is a migration in EF?",
+    CorrectAnswer = "A way to update the database schema",
+    Answers = new() { "A backup", "A query", "A way to update the database schema", "A table" }
+},
+new QuizQuestion
+{
+    Question = "What does LINQ stand for?",
+    CorrectAnswer = "Language Integrated Query",
+    Answers = new() { "Logical Index Query", "Language Integrated Query", "Linked Information Query", "Local Input Query" }
+},
+new QuizQuestion
+{
+    Question = "What is NoSQL?",
+    CorrectAnswer = "A non-relational database",
+    Answers = new() { "A SQL tool", "A query language", "A non-relational database", "A file system" }
+},
+new QuizQuestion
+{
+    Question = "Which database is an example of NoSQL?",
+    CorrectAnswer = "MongoDB",
+    Answers = new() { "MySQL", "PostgreSQL", "MongoDB", "SQL Server" }
+},
+new QuizQuestion
+{
+    Question = "What is JSON mainly used for?",
+    CorrectAnswer = "Storing and transferring data",
+    Answers = new() { "Encrypting data", "Designing UI", "Storing and transferring data", "Running queries" }
+},
+new QuizQuestion
+{
+    Question = "What is encryption?",
+    CorrectAnswer = "Protecting data by encoding it",
+    Answers = new() { "Deleting data", "Backing up data", "Protecting data by encoding it", "Sorting data" }
+},
+new QuizQuestion
+{
+    Question = "What is indexing used for?",
+    CorrectAnswer = "Improving query performance",
+    Answers = new() { "Encrypting data", "Deleting data", "Improving query performance", "Creating tables" }
+},
+new QuizQuestion
+{
+    Question = "What is a database seed?",
+    CorrectAnswer = "Initial data added to the database",
+    Answers = new() { "A backup", "A query", "Initial data added to the database", "A table" }
+},
+new QuizQuestion
+{
+    Question = "What does JOIN do in SQL?",
+    CorrectAnswer = "Combines data from multiple tables",
+    Answers = new() { "Deletes data", "Creates tables", "Combines data from multiple tables", "Encrypts data" }
+},
+new QuizQuestion
+{
+    Question = "What is the main purpose of a database?",
+    CorrectAnswer = "To store and manage data",
+    Answers = new() { "To run games", "To design websites", "To store and manage data", "To write code" }
+}
+        
+    };
+
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}

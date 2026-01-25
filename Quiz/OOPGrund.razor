@@ -1,0 +1,298 @@
+@page "/quiz/oopgrund"
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        OOP Basic
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+    {
+        new QuizQuestion
+{
+    Question = "What does OOP stand for?",
+    CorrectAnswer = "Object-Oriented Programming",
+    Answers = new() { "Object-Oriented Programming", "Open Online Protocol", "Object Operation Process", "Optional Output Program" }
+},
+new QuizQuestion
+{
+    Question = "What is a class in C#?",
+    CorrectAnswer = "A blueprint for creating objects",
+    Answers = new() { "An object", "A method", "A blueprint for creating objects", "A variable" }
+},
+new QuizQuestion
+{
+    Question = "What is an object?",
+    CorrectAnswer = "An instance of a class",
+    Answers = new() { "A method", "A class", "An instance of a class", "A loop" }
+},
+new QuizQuestion
+{
+    Question = "Which keyword is used to create an object?",
+    CorrectAnswer = "new",
+    Answers = new() { "class", "create", "new", "object" }
+},
+new QuizQuestion
+{
+    Question = "What is a constructor used for?",
+    CorrectAnswer = "To initialize an object",
+    Answers = new() { "To run loops", "To initialize an object", "To print text", "To delete objects" }
+},
+new QuizQuestion
+{
+    Question = "What is encapsulation?",
+    CorrectAnswer = "Protecting data using access modifiers",
+    Answers = new() { "Copying code", "Using loops", "Protecting data using access modifiers", "Creating objects" }
+},
+new QuizQuestion
+{
+    Question = "Which access modifier gives the most access?",
+    CorrectAnswer = "public",
+    Answers = new() { "private", "protected", "internal", "public" }
+},
+new QuizQuestion
+{
+    Question = "What does private mean?",
+    CorrectAnswer = "Only the class itself can access it",
+    Answers = new() { "Everyone can access it", "Only child classes", "Only the class itself can access it", "Only the main method" }
+},
+new QuizQuestion
+{
+    Question = "What is inheritance?",
+    CorrectAnswer = "When a class inherits from another class",
+    Answers = new() { "Copying code", "When a class inherits from another class", "Using loops", "Creating variables" }
+},
+new QuizQuestion
+{
+    Question = "Which symbol is used for inheritance in C#?",
+    CorrectAnswer = ":",
+    Answers = new() { "->", "=", ":", "=>" }
+},
+new QuizQuestion
+{
+    Question = "What is polymorphism?",
+    CorrectAnswer = "Same method, different behavior",
+    Answers = new() { "Many classes", "Same method, different behavior", "Same variables", "Same constructor" }
+},
+new QuizQuestion
+{
+    Question = "What is an abstract class?",
+    CorrectAnswer = "A class that cannot be instantiated",
+    Answers = new() { "A normal class", "A class that cannot be instantiated", "A method", "An object" }
+},
+new QuizQuestion
+{
+    Question = "What is a method?",
+    CorrectAnswer = "A function inside a class",
+    Answers = new() { "A variable", "A function inside a class", "An object", "A loop" }
+},
+new QuizQuestion
+{
+    Question = "What is a property?",
+    CorrectAnswer = "A safe way to access data",
+    Answers = new() { "A loop", "A method", "A safe way to access data", "A class" }
+},
+new QuizQuestion
+{
+    Question = "What do get and set do?",
+    CorrectAnswer = "Read and write values",
+    Answers = new() { "Create objects", "Run methods", "Read and write values", "Start programs" }
+},
+new QuizQuestion
+{
+    Question = "What is a static method?",
+    CorrectAnswer = "Belongs to the class, not the object",
+    Answers = new() { "Belongs to the object", "Belongs to the class, not the object", "Runs automatically", "Is always private" }
+},
+new QuizQuestion
+{
+    Question = "What is an interface used for?",
+    CorrectAnswer = "To define rules for classes",
+    Answers = new() { "To create objects", "To define rules for classes", "To write loops", "To store data" }
+},
+new QuizQuestion
+{
+    Question = "What is a parameter?",
+    CorrectAnswer = "A value passed to a method",
+    Answers = new() { "A class", "An object", "A value passed to a method", "A loop" }
+},
+new QuizQuestion
+{
+    Question = "What is a return value?",
+    CorrectAnswer = "The value a method sends back",
+    Answers = new() { "A parameter", "A class", "The value a method sends back", "A variable" }
+},
+new QuizQuestion
+{
+    Question = "What is the main goal of OOP?",
+    CorrectAnswer = "To organize code using objects",
+    Answers = new() { "To write longer code", "To avoid classes", "To organize code using objects", "To remove methods" }
+}
+        
+    };
+
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}

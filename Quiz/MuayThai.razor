@@ -1,0 +1,310 @@
+@page "/quiz/muaythai"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        👊 Muay Thai Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @foreach (var answer in questions[currentQuestion].Answers)
+            {
+                <MudItem xs="6" class="d-flex justify-center">
+
+                    <MudButton 
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        class="glow-button"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+    {
+       
+
+        new QuizQuestion
+{
+    Question = "What does the term 'Muay' translate to in English?",
+    CorrectAnswer = "Boxing",
+    Answers = new() { "Fighting", "Boxing", "Warrior", "Striking" }
+},
+new QuizQuestion
+{
+    Question = "How many points of contact are used in Muay Thai?",
+    CorrectAnswer = "Eight",
+    Answers = new() { "Four", "Six", "Eight", "Ten" }
+},
+new QuizQuestion
+{
+    Question = "Which strike is most associated with Muay Thai?",
+    CorrectAnswer = "Elbow",
+    Answers = new() { "Uppercut", "Hook", "Elbow", "Backfist" }
+},
+new QuizQuestion
+{
+    Question = "What is the purpose of the Wai Kru ritual?",
+    CorrectAnswer = "To show respect",
+    Answers = new() { "To warm up", "To intimidate", "To show respect", "To test balance" }
+},
+new QuizQuestion
+{
+    Question = "Which body part is mainly used for Muay Thai kicks?",
+    CorrectAnswer = "Shin",
+    Answers = new() { "Foot", "Heel", "Shin", "Knee" }
+},
+new QuizQuestion
+{
+    Question = "What is the Muay Thai clinch mainly used for?",
+    CorrectAnswer = "Controlling the opponent",
+    Answers = new() { "Escaping strikes", "Scoring points", "Controlling the opponent", "Blocking kicks" }
+},
+new QuizQuestion
+{
+    Question = "What is the traditional Muay Thai headband called?",
+    CorrectAnswer = "Mongkhon",
+    Answers = new() { "Pra Jiad", "Mongkhon", "Ram Band", "Thai Crown" }
+},
+new QuizQuestion
+{
+    Question = "Which strike is most likely to cause cuts?",
+    CorrectAnswer = "Elbow",
+    Answers = new() { "Punch", "Kick", "Elbow", "Knee" }
+},
+new QuizQuestion
+{
+    Question = "What is Muay Boran?",
+    CorrectAnswer = "Traditional Muay Thai",
+    Answers = new() { "Modern Muay Thai", "Traditional Muay Thai", "Kickboxing", "MMA" }
+},
+new QuizQuestion
+{
+    Question = "Which stadium is famous for Muay Thai in Bangkok?",
+    CorrectAnswer = "Lumpinee",
+    Answers = new() { "Rajadamnern", "Lumpinee", "Saitama", "Madison Square Garden" }
+},
+new QuizQuestion
+{
+    Question = "What is the purpose of Pra Jiad armbands?",
+    CorrectAnswer = "For protection and tradition",
+    Answers = new() { "To score points", "For fashion", "For protection and tradition", "To show rank" }
+},
+new QuizQuestion
+{
+    Question = "Which strike targets the opponent’s body in the clinch?",
+    CorrectAnswer = "Knee",
+    Answers = new() { "Elbow", "Hook", "Knee", "Jab" }
+},
+new QuizQuestion
+{
+    Question = "What type of kick is most commonly used in Muay Thai?",
+    CorrectAnswer = "Roundhouse kick",
+    Answers = new() { "Side kick", "Front kick", "Roundhouse kick", "Spinning kick" }
+},
+new QuizQuestion
+{
+    Question = "Which part of the body is a legal target in Muay Thai?",
+    CorrectAnswer = "Legs",
+    Answers = new() { "Groin", "Spine", "Back of head", "Legs" }
+},
+new QuizQuestion
+{
+    Question = "What is the role of the referee in Muay Thai?",
+    CorrectAnswer = "Ensure fighter safety",
+    Answers = new() { "Score points", "Coach fighters", "Ensure fighter safety", "Train fighters" }
+},
+new QuizQuestion
+{
+    Question = "What is the traditional Muay Thai music called?",
+    CorrectAnswer = "Sarama",
+    Answers = new() { "Thai Beat", "Sarama", "Ram Song", "Muay Rhythm" }
+},
+new QuizQuestion
+{
+    Question = "What is the main scoring focus in Muay Thai?",
+    CorrectAnswer = "Effective strikes",
+    Answers = new() { "Knockdowns", "Grappling", "Effective strikes", "Footwork" }
+},
+new QuizQuestion
+{
+    Question = "Which strike is often used in close range?",
+    CorrectAnswer = "Elbow",
+    Answers = new() { "Jab", "Elbow", "Teep", "High kick" }
+},
+new QuizQuestion
+{
+    Question = "What does the clinch allow fighters to do?",
+    CorrectAnswer = "Control posture",
+    Answers = new() { "Avoid contact", "Control posture", "Run away", "Score only with punches" }
+},
+new QuizQuestion
+{
+    Question = "What is the front push kick in Muay Thai called?",
+    CorrectAnswer = "Teep",
+    Answers = new() { "Low kick", "Teep", "Cross kick", "Sweep" }
+}
+        
+        
+    };
+
+    void SelectAnswer(string answer)
+    {
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+}
