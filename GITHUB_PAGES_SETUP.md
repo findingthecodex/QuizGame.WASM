@@ -24,13 +24,12 @@ En automatisk deployment-workflow har skapats i `.github/workflows/deploy.yml` s
 1. **Gå till ditt repository på GitHub:**
    https://github.com/findingthecodex/QuizGame.WASM
 
-2. **Aktivera GitHub Pages:**
+### 2. **Aktivera GitHub Pages:**
    - Klicka på **Settings** (längst till höger i menyn)
    - Scrolla ner och klicka på **Pages** i vänstermenyn
    - Under **Source**, välj:
-     - Branch: `gh-pages`
-     - Folder: `/ (root)`
-   - Klicka **Save**
+     - Build and deployment: **GitHub Actions**
+   - (Du behöver INTE välja en branch manuellt - GitHub Actions hanterar allt!)
 
 3. **Vänta några minuter**
    - GitHub Pages bygger och publicerar din sida
