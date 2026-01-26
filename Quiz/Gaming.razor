@@ -35,27 +35,27 @@
         <!-- Här ligger ditt nuvarande quiz -->
     
 
-    <!-- The Question -->
-    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+        <!-- The Question -->
+        <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
 
-        <MudText Typo="Typo.h2" Class="mb-3">
-            @questions[currentQuestion].Question
-        </MudText>
+            <MudText Typo="Typo.h2" Class="mb-3">
+                @questions[currentQuestion].Question
+            </MudText>
 
-        <!-- Answer choices -->
-        <MudGrid Justify="Justify.Center" Spacing="2">
+            <!-- Answer choices -->
+            <MudGrid Justify="Justify.Center" Spacing="2">
 
-            @foreach (var answer in questions[currentQuestion].Answers)
-            {
-                <MudItem xs="6" class="d-flex justify-center">
+                @foreach (var answer in questions[currentQuestion].Answers)
+                {
+                    <MudItem xs="6" class="d-flex justify-center">
 
-                    <MudButton 
-                        Variant="Variant.Filled"
-                        Color="Color.Primary"
-                        class="glow-button"
-                        OnClick="@(() => SelectAnswer(answer))"
-                        Disabled="@answered"
-                        Style="
+                        <MudButton 
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            class="glow-button"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
                     width: 220px;
                     height: 70px;
                     font-size: 1.5rem;
@@ -63,27 +63,27 @@
                     border-radius: 16px;
                 ">
 
-                        @answer
-                    </MudButton>
+                            @answer
+                        </MudButton>
 
-                </MudItem>
-            }
-        </MudGrid>
+                    </MudItem>
+                }
+            </MudGrid>
 
-        <!-- Correct or Wrong text -->
-        @if (answered)
-        {
-            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
-                @feedbackMessage
-            </MudText>
+            <!-- Correct or Wrong text -->
+            @if (answered)
+            {
+                <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                    @feedbackMessage
+                </MudText>
 
-            <!-- Next Question button -->
-            <MudButton 
-                Class="mt-3"
-                Variant="Variant.Filled"
-                Color="Color.Primary"
-                OnClick="NextQuestion"
-                Style="
+                <!-- Next Question button -->
+                <MudButton 
+                    Class="mt-3"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    OnClick="NextQuestion"
+                    Style="
                         width: 180px;
                         height: 50px;
                         font-size: 1rem;
@@ -91,19 +91,33 @@
                         border-radius: 20px;
                         box-shadow: 0 0 15px rgba(0,0,0,0.7);
                 ">
-                Next Question
-            </MudButton>
-        }
+                    Next Question
+                </MudButton>
+            }
         
         
 
-    </MudCard>
+        </MudCard>
 
-    <MudText Typo="Typo.subtitle1" Class="mt-4">
-        Score: @score
-    </MudText>
+        <MudText Typo="Typo.subtitle1" Class="mt-4">
+            Score: @score
+        </MudText>
     }
     
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
 </div>
     
 
