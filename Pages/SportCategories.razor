@@ -16,7 +16,7 @@
         Variant="Variant.Filled" 
         Color="Color.Primary"
         Class="glow-button"
-        OnClick="OOPGrund"
+        OnClick="Olympics"
         Style="
         width: 300px;
         height: 110px;
@@ -77,6 +77,11 @@
 </div>
 
 @code {
+
+    private void Olympics()
+    {
+        Nav.NavigateTo("quiz/olympics");
+    }
     private void QuizGaming()
     {
         Nav.NavigateTo("quiz/gaming");
