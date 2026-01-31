@@ -140,3 +140,17 @@ a, .btn-link {
     color: white !important;
     border-color: rgba(255,50,50,0.25) !important;
 }
+
+/* Code block styling to ensure visibility */
+.code-block {
+    color: #e5e7eb;
+    background: #020617;
+    padding: 12px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+}

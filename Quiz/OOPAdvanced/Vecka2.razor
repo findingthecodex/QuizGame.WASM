@@ -63,7 +63,7 @@
         max-width:600px;
       ">
 
-                <pre class="code-block">@questions[currentQuestion].CodeSnippet</pre>
+                <pre class="code-block">@((MarkupString)System.Net.WebUtility.HtmlEncode(questions[currentQuestion].CodeSnippet ?? ""))</pre>
 
             </MudPaper>
         }
@@ -205,7 +205,7 @@
     
     string textAnswer = "";
     
-    HashSet<string> selectedAnswers = new();
+    HashSet<string> selectedAnswers = new(StringComparer.OrdinalIgnoreCase);
 
     int totalQuestions = 10;
     bool showResult = false;
@@ -237,12 +237,16 @@
                 Question = q.Question,
                 // Preserve single-answer field
                 CorrectAnswer = q.CorrectAnswer,
-                // Preserve multi-answer list
-                CorrectAnswers = q.CorrectAnswers?.ToList() ?? new List<string>(),
+                // Preserve multi-answer list; if missing but single-correct exists, normalize into list
+                CorrectAnswers = (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+                    ? q.CorrectAnswers.ToList()
+                    : (!string.IsNullOrWhiteSpace(q.CorrectAnswer) ? new List<string> { q.CorrectAnswer } : new List<string>()),
                 // Shuffle choices
                 Answers = q.Answers?.OrderBy(a => rnd.Next()).ToList() ?? new List<string>(),
-                // Preserve text/multi flags and keywords (IsMultiChoice is computed from CorrectAnswers)
+                // Preserve text/multi flags and keywords
                 IsTextAnswer = q.IsTextAnswer,
+                // Preserve code snippet so it shows after shuffle
+                CodeSnippet = q.CodeSnippet,
                 Keywords = q.Keywords?.ToList() ?? new List<string>()
             })
             .Take(totalQuestions)
@@ -562,7 +566,7 @@
             return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
 
         // after submission
-        var correct = questions[currentQuestion].CorrectAnswers.ToHashSet();
+        var correct = GetCorrectSet(questions[currentQuestion]);
 
         if (correct.Contains(answer))
             return "glow-button glow-selected"; // correct
@@ -582,10 +586,9 @@
         // TEXT ANSWER
         if (question.IsTextAnswer)
         {
-            var input = textAnswer.ToLower();
+            var input = textAnswer?.ToLowerInvariant() ?? "";
 
-            int hits = question.Keywords.Count(k =>
-                input.Contains(k));
+            int hits = question.Keywords?.Count(k => input.Contains((k ?? "").ToLowerInvariant())) ?? 0;
 
             bool isCorrect = hits >= 2; // minst 2 keywords
 
@@ -604,12 +607,12 @@
             return;
         }
 
-        // EXISTING LOGIC
-        var correct = question.CorrectAnswers;
+        // MULTI / SINGLE choice logic - normalize correct answers
+        var correctSet = GetCorrectSet(question);
 
         bool isCorrectMulti =
-            selectedAnswers.Count == correct.Count &&
-            selectedAnswers.All(a => correct.Contains(a));
+            selectedAnswers.Count == correctSet.Count &&
+            selectedAnswers.All(a => correctSet.Contains(a));
 
         if (isCorrectMulti)
         {
@@ -619,10 +622,29 @@
         }
         else
         {
-            var correctText = string.Join(", ", correct);
+            var correctText = string.Join(", ", correctSet);
 
             feedbackMessage = $"Wrong 😢 Correct: {correctText}";
             feedbackColor = Color.Error;
         }
+    }
+
+    HashSet<string> GetCorrectSet(QuizQuestion q)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (q == null)
+            return set;
+
+        if (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+        {
+            foreach (var a in q.CorrectAnswers)
+                set.Add(a);
+        }
+        else if (!string.IsNullOrWhiteSpace(q.CorrectAnswer))
+        {
+            set.Add(q.CorrectAnswer);
+        }
+
+        return set;
     }
 }
