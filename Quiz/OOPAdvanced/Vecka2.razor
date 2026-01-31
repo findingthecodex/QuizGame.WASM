@@ -74,15 +74,19 @@
             }
         </MudGrid>
         
-        <MudButton
-            Class="mt-4"
-            Variant="Variant.Filled"
-            Color="Color.Secondary"
-            Disabled="@(answered || selectedAnswers.Count == 0)"
-            OnClick="SubmitAnswer">
+        @if (questions[currentQuestion].IsMultiChoice)
+        {
+            <MudButton
+                Class="mt-4 submit-glow force-style"
+                Variant="Variant.Filled"
+                Color="Color.Inherit"
+                DisableElevation="true"
+                Disabled="@(answered || selectedAnswers.Count == 0)"
+                OnClick="SubmitAnswer">
 
-            Submit Answer
-        </MudButton> 
+                Submit Answer
+            </MudButton>
+        }
 
         <!-- Correct or Wrong text -->
         @if (answered)
@@ -178,6 +182,8 @@
 
     List<QuizQuestion> questions = new()
 {
+    
+    // Multi answer question
     new QuizQuestion
     {
         Question = "API-kontrakt – kärnkomponenter. Vilka ingår?",
@@ -233,17 +239,86 @@
         }
     },
     
+    // One answer question
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 400 Bad Request?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Valideringsfel"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 404 Not Found?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Resurs saknas"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 409 Conflict?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Logisk konflikt"
+        }
+    },
+    
     };
 
     
     void SelectAnswer(string answer)
     {
+        if (answered)
+            return;
+
+        var question = questions[currentQuestion];
+
+        if (!question.IsMultiChoice)
+        {
+            // SINGLE choice → välj + rätta direkt
+            selectedAnswers.Clear();
+            selectedAnswers.Add(answer);
+
+            SubmitAnswer();
+            return;
+        }
+
+        // MULTI choice → toggle
         if (selectedAnswers.Contains(answer))
             selectedAnswers.Remove(answer);
         else
             selectedAnswers.Add(answer);
 
-        StateHasChanged(); // <--- DENNA ÄR KRITISK
+        StateHasChanged();
     }
     
     void NextQuestion()

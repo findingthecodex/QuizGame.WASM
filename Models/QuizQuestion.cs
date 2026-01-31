@@ -9,6 +9,9 @@ public class QuizQuestion
         // Multi answers
         public List<string> CorrectAnswers { get; set; } = new();
         
+        // One answer
+        public bool IsMultiChoice => CorrectAnswers.Count > 1;
+        
         public IEnumerable<string> GetCorrectAnswers()
         {
                 if (CorrectAnswers.Any())
