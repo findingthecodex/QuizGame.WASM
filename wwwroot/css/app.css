@@ -290,4 +290,10 @@ a, .btn-link {
     box-shadow: none !important;
 }
 
+.code-block {
+    margin: 0;
+    white-space: pre;
+    line-height: 1.5;
+}
+
 
