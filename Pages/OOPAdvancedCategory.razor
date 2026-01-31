@@ -1,4 +1,4 @@
-@page "/programmingcategories"
+@page "/oopadvancedcategory"
 @inject NavigationManager Nav
 
 <div style="
@@ -9,14 +9,14 @@
     padding-top: 1rem;">
 
     <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-6">
-        💻 Programming
+        💻 OOP Advanced
     </MudText>
 
     <MudButton
         Variant="Variant.Filled" 
         Color="Color.Primary"
         Class="glow-button"
-        OnClick="OOPGrund"
+        OnClick="Vecka1"
         Style="
         width: 300px;
         height: 110px;
@@ -25,14 +25,14 @@
         border-radius: 20px;
     ">
     
-        OOP Basic
+        Vecka 1
     </MudButton>
     
     <MudButton
         Variant="Variant.Filled" 
         Color="Color.Primary"
         Class="glow-button"
-        OnClick="Databaser"
+        OnClick="Vecka2"
         Style="
         width: 300px;
         height: 110px;
@@ -41,24 +41,24 @@
         border-radius: 20px;
     ">
     
-        Databases
+        Vecka 2
     </MudButton>
     
-    <MudButton
-        Variant="Variant.Filled" 
-        Color="Color.Primary"
-        Class="glow-button"
-        OnClick="OOPAdvanced"
-        Style="
-        width: 300px;
-        height: 110px;
-        font-size: 2rem;
-        font-weight: 600;
-        border-radius: 20px;
-    ">
-    
-        OOP Advanced
-    </MudButton>
+@*     <MudButton *@
+@*         Variant="Variant.Filled"  *@
+@*         Color="Color.Primary" *@
+@*         Class="glow-button" *@
+@*         OnClick="OOPAdvanced" *@
+@*         Style=" *@
+@*         width: 300px; *@
+@*         height: 110px; *@
+@*         font-size: 2rem; *@
+@*         font-weight: 600; *@
+@*         border-radius: 20px; *@
+@*     "> *@
+@*      *@
+@*         OOP Advanced *@
+@*     </MudButton> *@
 
 </div>
 
@@ -78,18 +78,18 @@
 
 @code {
 
-    private void OOPGrund()
+    private void Vecka1()
     {
-        Nav.NavigateTo("quiz/oopgrund");
+        Nav.NavigateTo("quiz/oopadvanced/vecka1");
     }
 
-    private void Databaser()
+    private void Vecka2()
     {
-        Nav.NavigateTo("quiz/databaser");
+        Nav.NavigateTo("quiz/oopadvanced/vecka2");
     }
 
-    private void OOPAdvanced()
-    {
-        Nav.NavigateTo("oopadvancedcategory");
-    }
+    // private void OOPAdvanced()
+    // {
+    //     Nav.NavigateTo("quiz/oopadvanced");
+    // }
 }

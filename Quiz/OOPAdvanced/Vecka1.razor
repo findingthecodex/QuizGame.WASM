@@ -1,5 +1,4 @@
-@namespace QuizGame.WASM.Quiz.Legacy
-@page "/quiz/oopadvanced"
+@page "/quiz/oopadvanced/vecka1"
 
 
 <div style="
@@ -54,7 +53,7 @@
                     <MudButton 
                         Variant="Variant.Filled"
                         Color="Color.Primary"
-                        Class="@GetButtonClass(answer)"
+                        class="glow-button"
                         OnClick="@(() => SelectAnswer(answer))"
                         Disabled="@answered"
                         Style="
@@ -133,8 +132,6 @@
 
     string feedbackMessage = "";
     Color feedbackColor = Color.Default;
-
-    string? lastSelectedAnswer = null;
 
     protected override void OnInitialized()
     {
@@ -334,26 +331,9 @@
         
     };
     
-    string GetButtonClass(string answer)
-    {
-        if (!answered)
-            return "glow-button"; // no pre-select for single-click immediate feedback
-
-        var correct = questions[currentQuestion].GetCorrectAnswers().ToList();
-
-        if (correct.Contains(answer))
-            return "glow-button glow-selected";
-
-        if (lastSelectedAnswer == answer && !correct.Contains(answer))
-            return "glow-button glow-wrong";
-
-        return "glow-button";
-    }
-
     void SelectAnswer(string answer)
     {
         answered = true;
-        lastSelectedAnswer = answer;
 
         var correctAnswers = questions[currentQuestion]
             .GetCorrectAnswers()
@@ -377,7 +357,6 @@
     {
         answered = false;
         feedbackMessage = "";
-        lastSelectedAnswer = null;
 
         if (currentQuestion < questions.Count - 1)
             currentQuestion++;

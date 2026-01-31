@@ -1,0 +1,273 @@
+@page "/quiz/oopadvanced/vecka2"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        OOP Advanced Vecka 2
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <MudText Typo="Typo.h2" Class="mb-3">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Answer choices -->
+        <MudGrid Justify="Justify.Center" Spacing="2">
+
+            @for (int i = 0; i < questions[currentQuestion].Answers.Count; i++)
+            {
+                var answer = questions[currentQuestion].Answers[i];
+            
+                <MudItem xs="6" class="d-flex justify-center" @key="answer">
+
+                    <MudButton
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        Class="@GetButtonClass(answer)"
+                        OnClick="@(() => SelectAnswer(answer))"
+                        Disabled="@answered"
+                        Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                        @answer
+
+                    </MudButton>
+
+                </MudItem>
+            }
+        </MudGrid>
+        
+        <MudButton
+            Class="mt-4"
+            Variant="Variant.Filled"
+            Color="Color.Secondary"
+            Disabled="@(answered || selectedAnswers.Count == 0)"
+            OnClick="SubmitAnswer">
+
+            Submit Answer
+        </MudButton> 
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+    HashSet<string> selectedAnswers = new();
+
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons - multi answers
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+
+        questions = questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+            {
+                Question = q.Question,
+
+                // Kopiera båda (för säkerhets skull)
+                CorrectAnswers = q.CorrectAnswers.ToList(),
+
+                Answers = q.Answers
+                    .OrderBy(a => rnd.Next())
+                    .ToList()
+            })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+    List<QuizQuestion> questions = new()
+{
+    new QuizQuestion
+    {
+        Question = "API-kontrakt – kärnkomponenter. Vilka ingår?",
+        Answers = new()
+        {
+            "Requestmodell",
+            "Responsemodell",
+            "Databasindex",
+            "Statuskoder",
+            "Versionshantering (Git)"
+        },
+        CorrectAnswers = new()
+        {
+            "Requestmodell",
+            "Responsemodell",
+            "Statuskoder"
+        }
+    },
+        
+    };
+    
+    void SelectAnswer(string answer)
+    {
+        if (selectedAnswers.Contains(answer))
+            selectedAnswers.Remove(answer);
+        else
+            selectedAnswers.Add(answer);
+
+        StateHasChanged(); // <--- DENNA ÄR KRITISK
+    }
+    
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    void SubmitAnswer()
+    {
+        answered = true;
+
+        var correct = questions[currentQuestion].CorrectAnswers;
+
+        bool isCorrect =
+            selectedAnswers.Count == correct.Count &&
+            selectedAnswers.All(a => correct.Contains(a));
+
+        if (isCorrect)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            var correctText = string.Join(", ", correct);
+
+            feedbackMessage = $"Wrong 😢 Correct: {correctText}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
+
+        // after submission
+        var correct = questions[currentQuestion].CorrectAnswers.ToHashSet();
+
+        if (correct.Contains(answer))
+            return "glow-button glow-selected"; // correct
+
+        if (selectedAnswers.Contains(answer) && !correct.Contains(answer))
+            return "glow-button glow-wrong"; // wrongly selected
+
+        return "glow-button";
+    }
+}

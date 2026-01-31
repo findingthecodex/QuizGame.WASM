@@ -127,6 +127,8 @@
     string feedbackMessage = "";
     Color feedbackColor = Color.Default;
 
+    string? lastSelectedAnswer = null;
+
     protected override void OnInitialized()
     {
         ShuffleQuestions();
@@ -273,11 +275,32 @@ new QuizQuestion
         
     };
 
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return "glow-button";
+
+        var correct = questions[currentQuestion].GetCorrectAnswers().ToList();
+
+        if (correct.Contains(answer))
+            return "glow-button glow-selected";
+
+        if (lastSelectedAnswer == answer && !correct.Contains(answer))
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+
     void SelectAnswer(string answer)
     {
         answered = true;
+        lastSelectedAnswer = answer;
 
-        if (answer == questions[currentQuestion].CorrectAnswer)
+        var correctAnswers = questions[currentQuestion]
+            .GetCorrectAnswers()
+            .ToList();
+
+        if (correctAnswers.Contains(answer))
         {
             score++;
             feedbackMessage = "Correct! 🎉";
@@ -285,7 +308,9 @@ new QuizQuestion
         }
         else
         {
-            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            var correctText = string.Join(", ", correctAnswers);
+
+            feedbackMessage = $"Wrong 😢 Correct answer: {correctText}";
             feedbackColor = Color.Error;
         }
     }
@@ -294,6 +319,7 @@ new QuizQuestion
     {
         answered = false;
         feedbackMessage = "";
+        lastSelectedAnswer = null;
 
         if (currentQuestion < questions.Count - 1)
             currentQuestion++;

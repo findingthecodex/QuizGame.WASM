@@ -106,5 +106,37 @@ a, .btn-link {
     top: 0.5rem;
 }
 
+.glow-preselect {
+    box-shadow:
+        0 0 10px rgba(0, 229, 255, 0.9),
+        0 0 30px rgba(0, 229, 255, 0.6),
+        0 0 50px rgba(0, 229, 255, 0.35);
+    transform: scale(1.04);
+    background-color: #00e5ff !important; /* neon cyan/blue */
+    color: black !important;
+    border-color: rgba(0, 229, 255, 0.25) !important;
+}
 
+.glow-selected {
+    box-shadow:
+            0 0 10px rgba(0,255,110,0.95),
+            0 0 30px rgba(0,255,110,0.6),
+            inset 0 0 12px rgba(0,255,110,0.25);
 
+    transform: scale(1.07);
+    background-color: #00ff66 !important; /* neon green */
+    color: black !important;
+    border-color: rgba(0,255,110,0.25) !important;
+}
+
+.glow-wrong {
+    box-shadow:
+            0 0 10px rgba(255,50,50,0.95),
+            0 0 30px rgba(255,50,50,0.6),
+            inset 0 0 12px rgba(255,50,50,0.25);
+
+    transform: scale(1.02);
+    background-color: #ff2d2d !important; /* neon red */
+    color: white !important;
+    border-color: rgba(255,50,50,0.25) !important;
+}
