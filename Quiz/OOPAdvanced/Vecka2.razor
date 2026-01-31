@@ -39,8 +39,27 @@
     <!-- The Question -->
     <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
 
-        <MudText Typo="Typo.h2" Class="mb-3">
+        <!-- Question -->
+        <MudText Typo="Typo.h2" Class="mb-1">
             @questions[currentQuestion].Question
+        </MudText>
+
+        <!-- Info under question -->
+        <MudText Typo="Typo.subtitle2"
+                 Class="mb-3"
+                 Style="
+            font-weight:600;
+            color:#00bfff;
+            text-shadow:
+              0 0 6px rgba(0,150,255,0.8),
+              0 0 12px rgba(0,120,255,0.6),
+              0 0 20px rgba(0,90,255,0.4);
+         ">
+
+            @(questions[currentQuestion].IsMultiChoice
+                ? "Välj alla som stämmer"
+                : "Välj ett svar")
+
         </MudText>
 
         <!-- Answer choices -->
@@ -239,6 +258,25 @@
         }
     },
     
+    new QuizQuestion
+    {
+        Question = "EF Core – vilka är krav/rekommendationer för entiteter?",
+        Answers = new()
+        {
+            "Parameterlös konstruktor",
+            "Navigation properties",
+            "Public get/set",
+            "Virtuella metoder för allt",
+            "Flera arvshierarkier"
+        },
+        CorrectAnswers = new()
+        {
+            "Parameterlös konstruktor",
+            "Navigation properties",
+            "Public get/set"
+        }
+    },
+    
     // One answer question
     
     new QuizQuestion
@@ -291,6 +329,7 @@
             "Logisk konflikt"
         }
     },
+    
     
     };
 
