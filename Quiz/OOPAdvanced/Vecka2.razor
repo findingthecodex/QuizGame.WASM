@@ -194,10 +194,47 @@
             "Requestmodell",
             "Responsemodell",
             "Statuskoder"
+        },
+    },
+    
+    new QuizQuestion
+    {
+        Question = "POST – korrekt HTTP-beteende vid skapande av resurs",
+        Answers = new()
+        {
+            "Returnera 200 OK",
+            "Returnera 201 Created",
+            "Inkludera Location-header till ny resurs",
+            "Inkludera Id till ny resurs",
+            "Returnera 204 No Content"
+        },
+        CorrectAnswers = new()
+        {
+            "Returnera 201 Created",
+            "Inkludera Location-header till ny resurs"
         }
     },
-        
+    
+    new QuizQuestion
+    {
+        Question = "Minimal API – vilka ansvar ska ligga i API-lagret?",
+        Answers = new()
+        {
+            "Routing",
+            "Domänlogik",
+            "Applikationsbeslut",
+            "Statuskodsmappning",
+            "Databasåtkomst"
+        },
+        CorrectAnswers = new()
+        {
+            "Routing",
+            "Statuskodsmappning"
+        }
+    },
+    
     };
+
     
     void SelectAnswer(string answer)
     {
