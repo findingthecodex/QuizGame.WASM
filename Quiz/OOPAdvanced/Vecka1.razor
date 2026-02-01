@@ -39,37 +39,117 @@
     <!-- The Question -->
     <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
 
-        <MudText Typo="Typo.h2" Class="mb-3">
+        <!-- Question -->
+        <MudText Typo="Typo.h2" Class="mb-1">
             @questions[currentQuestion].Question
         </MudText>
+        
+        @if (!string.IsNullOrWhiteSpace(questions[currentQuestion].CodeSnippet))
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1" Color="Color.Info">
+                Exempel:
+            </MudText>
 
-        <!-- Answer choices -->
-        <MudGrid Justify="Justify.Center" Spacing="2">
+            <MudPaper Class="pa-3 mb-3"
+                      Elevation="4"
+                      Style="
+        background:#020617;
+        color:#e5e7eb;
+        font-family: 'JetBrains Mono', monospace;
+        font-size:0.9rem;
+        text-align:left;
+        border-radius:12px;
+        overflow-x:auto;
+        max-width:600px;
+      ">
 
-            @foreach (var answer in questions[currentQuestion].Answers)
-            {
-                <MudItem xs="6" class="d-flex justify-center">
+                <pre class="code-block">@((MarkupString)System.Net.WebUtility.HtmlEncode(questions[currentQuestion].CodeSnippet ?? ""))</pre>
 
-                    <MudButton 
-                        Variant="Variant.Filled"
-                        Color="Color.Primary"
-                        class="glow-button"
-                        OnClick="@(() => SelectAnswer(answer))"
-                        Disabled="@answered"
-                        Style="
-                    width: 220px;
-                    height: 70px;
-                    font-size: 1.2rem;
-                    font-weight: 600;
-                    border-radius: 16px;
-                ">
+            </MudPaper>
+        }
 
-                        @answer
-                    </MudButton>
+        <!-- Info under question -->
+        <MudText Typo="Typo.subtitle2"
+                 Class="mb-3"
+                 Style="
+            font-weight:600;
+            color:#00bfff;
+            text-shadow:
+              0 0 6px rgba(0,150,255,0.8),
+              0 0 12px rgba(0,120,255,0.6),
+              0 0 20px rgba(0,90,255,0.4);
+         ">
 
-                </MudItem>
-            }
-        </MudGrid>
+            @(
+            questions[currentQuestion].IsTextAnswer
+                ? "Skriv ditt svar"
+                : questions[currentQuestion].IsMultiChoice
+                    ? "Välj alla som stämmer"
+                    : "Välj ett svar"
+            )
+
+        </MudText>
+
+        <!-- Answer choices / Text answer -->
+        @if (questions[currentQuestion].IsTextAnswer)
+        {
+            <MudTextField
+                @bind-Value="textAnswer"
+                Placeholder="Skriv här (1–3 meningar)"
+                Variant="Variant.Filled"
+                Lines="3"
+                Class="mt-3"
+                Style="width: 100%; max-width:600px;" />
+        }
+        else
+        {
+            <MudGrid Justify="Justify.Center" Spacing="2">
+
+                @for (int i = 0; i < questions[currentQuestion].Answers.Count; i++)
+                {
+                    var answer = questions[currentQuestion].Answers[i];
+
+                    <MudItem xs="6" class="d-flex justify-center" @key="answer">
+
+                        <MudButton
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="@GetButtonClass(answer)"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
+                        width: 220px;
+                        height: 70px;
+                        font-size: 1.2rem;
+                        font-weight: 600;
+                        border-radius: 16px;
+                    ">
+
+                            @answer
+
+                        </MudButton>
+
+                    </MudItem>
+                }
+
+            </MudGrid>
+        }
+        
+        @if (questions[currentQuestion].IsMultiChoice || questions[currentQuestion].IsTextAnswer)
+        {
+            <MudButton
+                Class="mt-4 submit-glow"
+                Variant="Variant.Filled"
+                Color="Color.Inherit"
+                disableElevation="true"
+                Disabled="@(answered || 
+                          (questions[currentQuestion].IsMultiChoice && selectedAnswers.Count == 0) ||
+                          (questions[currentQuestion].IsTextAnswer && string.IsNullOrWhiteSpace(textAnswer)))"
+                OnClick="SubmitAnswer">
+
+                Submit Answer
+            </MudButton>
+        }
 
         <!-- Correct or Wrong text -->
         @if (answered)
@@ -95,8 +175,6 @@
                 Next Question
             </MudButton>
         }
-        
-        
 
     </MudCard>
 
@@ -123,6 +201,10 @@
 
 @code {
     
+    string textAnswer = "";
+    
+    HashSet<string> selectedAnswers = new(StringComparer.OrdinalIgnoreCase);
+
     int totalQuestions = 10;
     bool showResult = false;
 
@@ -141,6 +223,7 @@
     /// <summary>
     ///  Shuffles Questions and answer buttons - multi answers
     /// </summary>
+    // csharp
     void ShuffleQuestions()
     {
         var rnd = new Random();
@@ -150,21 +233,163 @@
             .Select(q => new QuizQuestion
             {
                 Question = q.Question,
-
-                // Kopiera båda (för säkerhets skull)
+                // Preserve single-answer field
                 CorrectAnswer = q.CorrectAnswer,
-                CorrectAnswers = q.CorrectAnswers.ToList(),
-
-                Answers = q.Answers
-                    .OrderBy(a => rnd.Next())
-                    .ToList()
+                // Preserve multi-answer list; if missing but single-correct exists, normalize into list
+                CorrectAnswers = (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+                    ? q.CorrectAnswers.ToList()
+                    : (!string.IsNullOrWhiteSpace(q.CorrectAnswer) ? new List<string> { q.CorrectAnswer } : new List<string>()),
+                // Shuffle choices
+                Answers = q.Answers?.OrderBy(a => rnd.Next()).ToList() ?? new List<string>(),
+                // Preserve text/multi flags and keywords
+                IsTextAnswer = q.IsTextAnswer,
+                // Preserve code snippet so it shows after shuffle
+                CodeSnippet = q.CodeSnippet,
+                Keywords = q.Keywords?.ToList() ?? new List<string>()
             })
             .Take(totalQuestions)
             .ToList();
     }
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        var question = questions[currentQuestion];
+
+        if (!question.IsMultiChoice)
+        {
+            // SINGLE choice → välj + rätta direkt
+            selectedAnswers.Clear();
+            selectedAnswers.Add(answer);
+
+            SubmitAnswer();
+            return;
+        }
+
+        // MULTI choice → toggle
+        if (selectedAnswers.Contains(answer))
+            selectedAnswers.Remove(answer);
+        else
+            selectedAnswers.Add(answer);
+
+        StateHasChanged();
+    }
+    
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+        textAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
+
+        // after submission
+        var correct = GetCorrectSet(questions[currentQuestion]);
+
+        if (correct.Contains(answer))
+            return "glow-button glow-selected"; // correct
+
+        if (selectedAnswers.Contains(answer) && !correct.Contains(answer))
+            return "glow-button glow-wrong"; // wrongly selected
+
+        return "glow-button";
+    }
+    
+    void SubmitAnswer()
+    {
+        answered = true;
+
+        var question = questions[currentQuestion];
+
+        // TEXT ANSWER
+        if (question.IsTextAnswer)
+        {
+            var input = textAnswer?.ToLowerInvariant() ?? "";
+
+            int hits = question.Keywords?.Count(k => input.Contains((k ?? "").ToLowerInvariant())) ?? 0;
+
+            bool isCorrect = hits >= 2; // minst 2 keywords
+
+            if (isCorrect)
+            {
+                score++;
+                feedbackMessage = "Bra svar! ✅";
+                feedbackColor = Color.Success;
+            }
+            else
+            {
+                feedbackMessage = "För kort / saknar viktiga begrepp ❌";
+                feedbackColor = Color.Error;
+            }
+
+            return;
+        }
+
+        // MULTI / SINGLE choice logic - normalize correct answers
+        var correctSet = GetCorrectSet(question);
+
+        bool isCorrectMulti =
+            selectedAnswers.Count == correctSet.Count &&
+            selectedAnswers.All(a => correctSet.Contains(a));
+
+        if (isCorrectMulti)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            var correctText = string.Join(", ", correctSet);
+
+            feedbackMessage = $"Wrong 😢 Correct: {correctText}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    HashSet<string> GetCorrectSet(QuizQuestion q)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (q == null)
+            return set;
+
+        if (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+        {
+            foreach (var a in q.CorrectAnswers)
+                set.Add(a);
+        }
+        else if (!string.IsNullOrWhiteSpace(q.CorrectAnswer))
+        {
+            set.Add(q.CorrectAnswer);
+        }
+
+        return set;
+    }
+
 
     List<QuizQuestion> questions = new()
-{
+    {
+    
+        // MULTI
     new QuizQuestion
     {
         Question = "OOP – Komposition framför arv. Vilka påståenden stämmer?",
@@ -183,6 +408,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Varför arbetar vi med feature-branch och pull request?",
@@ -199,6 +425,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Vad gör await i en endpoint?",
@@ -215,6 +442,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Vilken statuskod används när en POST skapar en resurs?",
@@ -231,6 +459,7 @@
         }
     },
 
+    // MULTI
     new QuizQuestion
     {
         Question = "Vilka påståenden stämmer om Minimal API?",
@@ -249,6 +478,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Vad innebär fail fast?",
@@ -265,6 +495,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "När används CancellationToken?",
@@ -281,6 +512,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Varför ska Domain inte känna till HTTP?",
@@ -297,6 +529,7 @@
         }
     },
 
+    // SINGLE
     new QuizQuestion
     {
         Question = "Vad är fel med att returnera Ok() vid skapad resurs?",
@@ -313,6 +546,7 @@
         }
     },
 
+    // MULTI
     new QuizQuestion
     {
         Question = "Hur projekterar man produkter korrekt med LINQ?",
@@ -330,45 +564,4 @@
     }
         
     };
-    
-    void SelectAnswer(string answer)
-    {
-        answered = true;
-
-        var correctAnswers = questions[currentQuestion]
-            .GetCorrectAnswers()
-            .ToList();
-
-        if (correctAnswers.Contains(answer))
-        {
-            score++;
-            feedbackMessage = "Correct! 🎉";
-            feedbackColor = Color.Success;
-        }
-        else
-        {
-            var correctText = string.Join(", ", correctAnswers);
-
-            feedbackMessage = $"Wrong 😢 Correct answer: {correctText}";
-            feedbackColor = Color.Error;
-        }
-    }
-    void NextQuestion()
-    {
-        answered = false;
-        feedbackMessage = "";
-
-        if (currentQuestion < questions.Count - 1)
-            currentQuestion++;
-        else
-            showResult = true;
-    }
-    
-    void RestartQuiz()
-    {
-        currentQuestion = 0;
-        score = 0;
-        showResult = false;
-        ShuffleQuestions();
-    }
 }

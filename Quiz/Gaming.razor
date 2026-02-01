@@ -123,8 +123,6 @@
 
 @code {
     
-    
-    
     int totalQuestions = 10;
     bool showResult = false;
 
@@ -155,6 +153,71 @@
                 })
             .Take(totalQuestions)
             .ToList();
+    }
+    
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    string GetButtonClass(string answer)
+    {
+        // Innan man svarat
+        if (!answered)
+            return answer == selectedAnswer
+                ? "glow-button glow-preselect"
+                : "glow-button";
+
+        // Efter svar
+
+        // Rätt svar → grön
+        if (answer == questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-selected";
+
+        // Fel valt → röd
+        if (answer == selectedAnswer &&
+            answer != questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+    
+    string selectedAnswer = "";
+    
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        selectedAnswer = answer;
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
     }
 
     List<QuizQuestion> questions = new()
@@ -280,74 +343,6 @@
             Answers = new() { "HAL 9000", "Atlas", "GLaDOS", "Cortana" }
         }
     };
-
-    void NextQuestion()
-    {
-        answered = false;
-        feedbackMessage = "";
-        selectedAnswer = "";
-
-        if (currentQuestion < questions.Count - 1)
-            currentQuestion++;
-        else
-            showResult = true;
-    }
-    
-    void RestartQuiz()
-    {
-        currentQuestion = 0;
-        score = 0;
-        showResult = false;
-        ShuffleQuestions();
-    }
-    
-    
-    
-    string GetButtonClass(string answer)
-    {
-        // Innan man svarat
-        if (!answered)
-            return answer == selectedAnswer
-                ? "glow-button glow-preselect"
-                : "glow-button";
-
-        // Efter svar
-
-        // Rätt svar → grön
-        if (answer == questions[currentQuestion].CorrectAnswer)
-            return "glow-button glow-selected";
-
-        // Fel valt → röd
-        if (answer == selectedAnswer &&
-            answer != questions[currentQuestion].CorrectAnswer)
-            return "glow-button glow-wrong";
-
-        return "glow-button";
-    }
-    
-    string selectedAnswer = "";
-    
-    void SelectAnswer(string answer)
-    {
-        if (answered)
-            return;
-
-        selectedAnswer = answer;
-        answered = true;
-
-        if (answer == questions[currentQuestion].CorrectAnswer)
-        {
-            score++;
-            feedbackMessage = "Correct! 🎉";
-            feedbackColor = Color.Success;
-        }
-        else
-        {
-            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
-            feedbackColor = Color.Error;
-        }
-    }
-    
 }
 
 

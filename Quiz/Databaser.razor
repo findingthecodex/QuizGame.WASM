@@ -53,7 +53,7 @@
                     <MudButton 
                         Variant="Variant.Filled"
                         Color="Color.Primary"
-                        class="glow-button"
+                        Class="@GetButtonClass(answer)"
                         OnClick="@(() => SelectAnswer(answer))"
                         Disabled="@answered"
                         Style="
@@ -158,6 +158,72 @@
             .Take(totalQuestions)
             .ToList();
     }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    // Green red button
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        selectedAnswer = answer;
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    string GetButtonClass(string answer)
+    {
+        // Innan man svarat
+        if (!answered)
+            return answer == selectedAnswer
+                ? "glow-button glow-preselect"
+                : "glow-button";
+
+        // Efter svar
+
+        // Rätt svar → grön
+        if (answer == questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-selected";
+
+        // Fel valt → röd
+        if (answer == selectedAnswer &&
+            answer != questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+    
+    string selectedAnswer = "";
 
     List<QuizQuestion> questions = new()
     {
@@ -283,64 +349,4 @@ new QuizQuestion
 }
         
     };
-
-    string GetButtonClass(string answer)
-    {
-        if (!answered)
-            return "glow-button";
-
-        var correct = questions[currentQuestion].GetCorrectAnswers().ToList();
-
-        if (correct.Contains(answer))
-            return "glow-button glow-selected";
-
-        if (lastSelectedAnswer == answer && !correct.Contains(answer))
-            return "glow-button glow-wrong";
-
-        return "glow-button";
-    }
-
-    void SelectAnswer(string answer)
-    {
-        answered = true;
-        lastSelectedAnswer = answer;
-
-        var correctAnswers = questions[currentQuestion]
-            .GetCorrectAnswers()
-            .ToList();
-
-        if (correctAnswers.Contains(answer))
-        {
-            score++;
-            feedbackMessage = "Correct! 🎉";
-            feedbackColor = Color.Success;
-        }
-        else
-        {
-            var correctText = string.Join(", ", correctAnswers);
-
-            feedbackMessage = $"Wrong 😢 Correct answer: {correctText}";
-            feedbackColor = Color.Error;
-        }
-    }
-
-    void NextQuestion()
-    {
-        answered = false;
-        feedbackMessage = "";
-        lastSelectedAnswer = null;
-
-        if (currentQuestion < questions.Count - 1)
-            currentQuestion++;
-        else
-            showResult = true;
-    }
-    
-    void RestartQuiz()
-    {
-        currentQuestion = 0;
-        score = 0;
-        showResult = false;
-        ShuffleQuestions();
-    }
 }

@@ -53,7 +53,7 @@
                         <MudButton 
                             Variant="Variant.Filled"
                             Color="Color.Primary"
-                            class="glow-button"
+                            Class="@GetButtonClass(answer)"
                             OnClick="@(() => SelectAnswer(answer))"
                             Disabled="@answered"
                             Style="
@@ -157,6 +157,72 @@
             .Take(totalQuestions)
             .ToList();
     }
+    
+    // Green red button
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        selectedAnswer = answer;
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    string GetButtonClass(string answer)
+    {
+        // Innan man svarat
+        if (!answered)
+            return answer == selectedAnswer
+                ? "glow-button glow-preselect"
+                : "glow-button";
+
+        // Efter svar
+
+        // Rätt svar → grön
+        if (answer == questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-selected";
+
+        // Fel valt → röd
+        if (answer == selectedAnswer &&
+            answer != questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+    
+    string selectedAnswer = "";
 
     List<QuizQuestion> questions = new()
     { 
@@ -280,45 +346,7 @@ new QuizQuestion
     Question = "Which Olympic sport includes the events foil, épée, and sabre?",
     CorrectAnswer = "Fencing",
     Answers = new() { "Karate", "Taekwondo", "Fencing", "Judo" }
-}
-        
+} 
+
     };
-    
-    
-
-    void SelectAnswer(string answer)
-    {
-        answered = true;
-
-        if (answer == questions[currentQuestion].CorrectAnswer)
-        {
-            score++;
-            feedbackMessage = "Correct! 🎉";
-            feedbackColor = Color.Success;
-        }
-        else
-        {
-            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
-            feedbackColor = Color.Error;
-        }
-    }
-
-    void NextQuestion()
-    {
-        answered = false;
-        feedbackMessage = "";
-
-        if (currentQuestion < questions.Count - 1)
-            currentQuestion++;
-        else
-            showResult = true;
-    }
-    
-    void RestartQuiz()
-    {
-        currentQuestion = 0;
-        score = 0;
-        showResult = false;
-        ShuffleQuestions();
-    }
 }
