@@ -386,65 +386,185 @@
     },
     
     // Question in text with keywords
+    // new QuizQuestion
+    // {
+    //     Question = "Resurs vs representation – förklara skillnaden (1–3 meningar)",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "url",
+    //         "identifier",
+    //         "json",
+    //         "xml",
+    //         "format",
+    //         "representation",
+    //         "data",
+    //         "rest"
+    //     }
+    // },
+    //
+    // new QuizQuestion
+    // {
+    //     Question = "409 Conflict – ge ett konkret API-exempel (t.ex. dubbelbokning, dubbelt svar, konflikt i tillstånd)",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "dubb",
+    //         "bok",
+    //         "quiz",
+    //         "redan",
+    //         "svar",
+    //         "konflikt",
+    //         "state",
+    //         "tillstånd",
+    //         "reservation",
+    //         "duplicate",
+    //         "exists"
+    //     }
+    // },
+    //
+    // new QuizQuestion
+    // {
+    //     Question = "Varför ska domänen vara fri från HTTP-koncept? Förklara varför Domain inte får känna till statuskoder eller ProblemDetails.",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "oberoende",
+    //         "ui",
+    //         "api",
+    //         "presentation",
+    //         "transport",
+    //         "återanvänd",
+    //         "test",
+    //         "ren",
+    //         "clean",
+    //         "business",
+    //         "logik",
+    //         "koppling",
+    //         "beroende"
+    //     }
+    // },
+    //
+//     new QuizQuestion
+//     {
+//         Question =
+//             "POST – fel kontrakt\n\n" +
+//             "Vad är fel med följande endpoint?\n" +
+//             "Beskriv felet och skriv en korrekt variant.\n\n" +
+//             "Ledtråd: POST → 201 + Location.",
+//
+//         IsTextAnswer = true,
+//
+//         CodeSnippet =
+//             @"app.MapPost(""/items"", (Item item, IItemRepo repo) =>
+// {
+//     repo.Add(item);
+//     return Results.Ok(item);
+// });",
+//
+//         Keywords = new()
+//         {
+//             "201",
+//             "created",
+//             "location",
+//             "createdat",
+//             "createdatroute",
+//             "uri",
+//             "header",
+//             "rest",
+//             "kontrakt",
+//             "post",
+//             "resurs",
+//             "url"
+//         }
+//     },
+    
+    // new QuizQuestion
+    // {
+    //     Question =
+    //         "GET med 200/404 + ProblemDetails\n\n" +
+    //         "Skriv en Minimal API-endpoint som returnerar:\n\n" +
+    //         "- 200 OK när produkten hittas\n" +
+    //         "- 404 NotFound med ProblemDetails\n\n" +
+    //         "Kort, ca 3–6 rader.",
+    //
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "mapget",
+    //         "get",
+    //         "notfound",
+    //         "problemdetails",
+    //         "results.notfound",
+    //         "results.ok",
+    //         "404",
+    //         "200",
+    //         "id",
+    //         "repo",
+    //         "return"
+    //     }
+    // },
+    
+    // Writing Questions with answer options
+    
     new QuizQuestion
     {
-        Question = "Resurs vs representation – förklara skillnaden (1–3 meningar)",
-        IsTextAnswer = true,
+        Question = "Resurs vs representation – vad är skillnaden?",
 
-        Keywords = new()
+        Answers = new()
         {
-            "url",
-            "identifier",
-            "json",
-            "xml",
-            "format",
-            "representation",
-            "data",
-            "rest"
+            "En resurs är datan, representation är hur den visas (t.ex. JSON/XML)",
+            "En resurs är ett UI, representation är backend",
+            "En resurs är en databas, representation är ett API",
+            "En resurs är alltid en URL, representation är alltid HTML",
+            "Det finns ingen skillnad"
+        },
+
+        CorrectAnswers = new()
+        {
+            "En resurs är datan, representation är hur den visas (t.ex. JSON/XML)"
         }
     },
     
     new QuizQuestion
     {
-        Question = "409 Conflict – ge ett konkret API-exempel (t.ex. dubbelbokning, dubbelt svar, konflikt i tillstånd)",
-        IsTextAnswer = true,
+        Question = "Vilket är ett korrekt exempel på 409 Conflict?",
 
-        Keywords = new()
+        Answers = new()
         {
-            "dubb",
-            "bok",
-            "quiz",
-            "redan",
-            "svar",
-            "konflikt",
-            "state",
-            "tillstånd",
-            "reservation",
-            "duplicate",
-            "exists"
+            "Försöka boka ett rum som redan är bokat",
+            "Försöka logga in med fel lösenord",
+            "Servern är nere",
+            "En resurs saknas",
+            "Ogiltigt JSON-format"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Försöka boka ett rum som redan är bokat"
         }
     },
     
     new QuizQuestion
     {
-        Question = "Varför ska domänen vara fri från HTTP-koncept? Förklara varför Domain inte får känna till statuskoder eller ProblemDetails.",
-        IsTextAnswer = true,
+        Question = "Varför ska Domain vara fri från HTTP-koncept?",
 
-        Keywords = new()
+        Answers = new()
         {
-            "oberoende",
-            "ui",
-            "api",
-            "presentation",
-            "transport",
-            "återanvänd",
-            "test",
-            "ren",
-            "clean",
-            "business",
-            "logik",
-            "koppling",
-            "beroende"
+            "För att affärslogiken ska vara oberoende av API och transport",
+            "För att göra koden längre",
+            "För att snabba upp nätverket",
+            "För att slippa skriva statuskoder",
+            "För att UI ska fungera bättre"
+        },
+
+        CorrectAnswers = new()
+        {
+            "För att affärslogiken ska vara oberoende av API och transport"
         }
     },
     
@@ -452,11 +572,7 @@
     {
         Question =
             "POST – fel kontrakt\n\n" +
-            "Vad är fel med följande endpoint?\n" +
-            "Beskriv felet och skriv en korrekt variant.\n\n" +
-            "Ledtråd: POST → 201 + Location.",
-
-        IsTextAnswer = true,
+            "Vad är fel med följande endpoint?",
 
         CodeSnippet =
             @"app.MapPost(""/items"", (Item item, IItemRepo repo) =>
@@ -465,20 +581,18 @@
     return Results.Ok(item);
 });",
 
-        Keywords = new()
+        Answers = new()
         {
-            "201",
-            "created",
-            "location",
-            "createdat",
-            "createdatroute",
-            "uri",
-            "header",
-            "rest",
-            "kontrakt",
-            "post",
-            "resurs",
-            "url"
+            "Den ska returnera 201 Created med Location-header, inte 200 OK",
+            "Den använder fel HTTP-metod",
+            "Den saknar validering",
+            "Den bryter mot CORS",
+            "Den använder fel datatyp"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Den ska returnera 201 Created med Location-header, inte 200 OK"
         }
     },
     
@@ -486,29 +600,22 @@
     {
         Question =
             "GET med 200/404 + ProblemDetails\n\n" +
-            "Skriv en Minimal API-endpoint som returnerar:\n\n" +
-            "- 200 OK när produkten hittas\n" +
-            "- 404 NotFound med ProblemDetails\n\n" +
-            "Kort, ca 3–6 rader.",
+            "Vilken kod uppfyller kraven?",
 
-        IsTextAnswer = true,
-
-        Keywords = new()
+        Answers = new()
         {
-            "mapget",
-            "get",
-            "notfound",
-            "problemdetails",
-            "results.notfound",
-            "results.ok",
-            "404",
-            "200",
-            "id",
-            "repo",
-            "return"
+            "Returnerar Ok när objekt finns, annars Results.Problem med 404",
+            "Returnerar alltid Ok",
+            "Returnerar alltid NotFound",
+            "Returnerar BadRequest vid saknad produkt",
+            "Returnerar Unauthorized"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Returnerar Ok när objekt finns, annars Results.Problem med 404"
         }
     },
-    
     
     };
 
