@@ -141,7 +141,7 @@
                 Class="mt-4 submit-glow"
                 Variant="Variant.Filled"
                 Color="Color.Inherit"
-                DisableElevation="true"
+                disableElevation="true"
                 Disabled="@(answered || 
                           (questions[currentQuestion].IsMultiChoice && selectedAnswers.Count == 0) ||
                           (questions[currentQuestion].IsTextAnswer && string.IsNullOrWhiteSpace(textAnswer)))"
