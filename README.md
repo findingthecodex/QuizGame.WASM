@@ -2,6 +2,8 @@
 
 Ett interaktivt quiz-spel byggt med Blazor WebAssembly och MudBlazor.
 
+🌐 **Live Demo**: [https://findingthecodex.github.io/QuizGame.WASM/](https://findingthecodex.github.io/QuizGame.WASM/)
+
 ## 🎮 Features
 
 - **Gaming Quiz** - Testa din kunskap om videospel
@@ -20,66 +22,79 @@ dotnet run
 
 ## 📦 Publicera till GitHub Pages
 
-### Steg 1: Publicera projektet
+### Metod 1: Automatisk deployment med GitHub Actions (Rekommenderad) ✨
 
-```bash
-cd QuizGame.WASM
-dotnet publish -c Release
-```
+Projektet är redan konfigurerat med GitHub Actions för automatisk deployment!
 
-### Steg 2: Konfigurera för GitHub Pages
-
-Efter publicering, kopiera innehållet från `bin/Release/net8.0/publish/wwwroot/` till din GitHub Pages repository.
-
-**Viktigt:** Lägg till en `.nojekyll`-fil i root för att förhindra Jekyll-processing:
-
-```bash
-cd bin/Release/net8.0/publish/wwwroot/
-touch .nojekyll
-```
-
-**Viktigt:** Lägg till en `404.html` för att hantera routing:
-
-```bash
-cp index.html 404.html
-```
-
-### Steg 3: Uppdatera base href
-
-Öppna `index.html` och uppdatera `<base href="/" />` till ditt repository-namn:
-
-```html
-<base href="/QuizGame.Blazor/" />
-```
-
-Om du använder custom domain:
-
-```html
-<base href="/" />
-```
-
-### Steg 4: Push till GitHub
+**Allt du behöver göra:**
 
 ```bash
 git add .
 git commit -m "Deploy to GitHub Pages"
-git push origin main
+git push origin gh
 ```
 
-### Steg 5: Aktivera GitHub Pages
+GitHub Actions kommer automatiskt att:
+1. Bygga projektet
+2. Konfigurera för GitHub Pages
+3. Publicera till `gh-pages` branch
+
+**Första gången - Aktivera GitHub Pages:**
 
 1. Gå till ditt repository på GitHub
-2. Settings → Pages
-3. Välj source: `main` branch, `/root` eller `/docs` folder
-4. Spara
+2. **Settings** → **Pages**
+3. Under **Build and deployment** → **Source**, välj: **GitHub Actions**
+4. (Ingen branch behöver väljas - GitHub Actions hanterar deployment automatiskt!)
 
-Din app kommer vara tillgänglig på: `https://<username>.github.io/<repository-name>/`
+Din app kommer vara tillgänglig på: `https://findingthecodex.github.io/QuizGame.WASM/`
+
+### Metod 2: Manuell deployment med deploy.sh
+
+Om du föredrar att deploya manuellt:
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+Följ sedan instruktionerna som scriptet visar.
 
 ## 🛠️ Tech Stack
 
 - **Blazor WebAssembly** - .NET 8
 - **MudBlazor** - UI Component Library
 - **C#** - Programming Language
+- **GitHub Actions** - CI/CD
+
+## 📋 Projektstruktur
+
+```
+QuizGame.WASM/
+├── .github/workflows/    # GitHub Actions för automatisk deployment
+├── Layout/              # Layout-komponenter
+├── Models/              # Datamodeller
+├── Pages/               # Huvudsidor (kategorier)
+├── Quiz/                # Quiz-komponenter
+├── wwwroot/             # Statiska filer (CSS, bilder)
+├── Program.cs           # Entry point
+└── deploy.sh            # Manuellt deployment-script
+```
+
+## 🔧 Felsökning
+
+**Problem: Sidan visar inte rätt efter deployment**
+- Kontrollera att **GitHub Actions** är vald som source i Settings → Pages
+- Vänta några minuter efter push (GitHub Pages kan ta 1-5 minuter att uppdatera)
+- Kolla Actions-fliken för att se att workflow körts utan fel
+- Rensa webbläsarens cache
+
+**Problem: 404 när du navigerar till undersidor**
+- Kontrollera att `404.html` finns i wwwroot (skapas automatiskt av workflow)
+- Kontrollera att `.nojekyll` filen finns
+
+**Problem: Sidan laddar inte CSS eller JavaScript**
+- Kontrollera att base href är korrekt i index.html (`/QuizGame.WASM/`)
+- Se till att alla tillgångar använder relativa paths
 
 ## 📝 License
 

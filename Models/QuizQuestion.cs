@@ -9,6 +9,17 @@ public class QuizQuestion
         // Multi answers
         public List<string> CorrectAnswers { get; set; } = new();
         
+        // One answer
+        public bool IsMultiChoice => CorrectAnswers.Count > 1;
+        
+        // Text answer
+        public bool IsTextAnswer { get; set; } = false;
+        
+        public string? CodeSnippet { get; set; }
+
+        // Text answer (keywords)
+        public List<string> Keywords { get; set; } = new();
+        
         public IEnumerable<string> GetCorrectAnswers()
         {
                 if (CorrectAnswers.Any())

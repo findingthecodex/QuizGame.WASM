@@ -1,0 +1,757 @@
+@page "/quiz/oopadvanced/vecka2"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        OOP Advanced Vecka 2
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <!-- Question -->
+        <MudText Typo="Typo.h2" Class="mb-1">
+            @questions[currentQuestion].Question
+        </MudText>
+        
+        @if (!string.IsNullOrWhiteSpace(questions[currentQuestion].CodeSnippet))
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1" Color="Color.Info">
+                Exempel:
+            </MudText>
+
+            <MudPaper Class="pa-3 mb-3"
+                      Elevation="4"
+                      Style="
+        background:#020617;
+        color:#e5e7eb;
+        font-family: 'JetBrains Mono', monospace;
+        font-size:0.9rem;
+        text-align:left;
+        border-radius:12px;
+        overflow-x:auto;
+        max-width:600px;
+      ">
+
+                <pre class="code-block">@((MarkupString)System.Net.WebUtility.HtmlEncode(questions[currentQuestion].CodeSnippet ?? ""))</pre>
+
+            </MudPaper>
+        }
+
+        <!-- Info under question -->
+        <MudText Typo="Typo.subtitle2"
+                 Class="mb-3"
+                 Style="
+            font-weight:600;
+            color:#00bfff;
+            text-shadow:
+              0 0 6px rgba(0,150,255,0.8),
+              0 0 12px rgba(0,120,255,0.6),
+              0 0 20px rgba(0,90,255,0.4);
+         ">
+
+            @(
+            questions[currentQuestion].IsTextAnswer
+                ? "Skriv ditt svar"
+                : questions[currentQuestion].IsMultiChoice
+                    ? "Välj alla som stämmer"
+                    : "Välj ett svar"
+            )
+
+        </MudText>
+
+        <!-- Answer choices / Text answer -->
+        @if (questions[currentQuestion].IsTextAnswer)
+        {
+            <MudTextField
+                @bind-Value="textAnswer"
+                Placeholder="Skriv här (1–3 meningar)"
+                Variant="Variant.Filled"
+                Lines="3"
+                Class="mt-3"
+                Style="width: 100%; max-width:600px;" />
+        }
+        else
+        {
+            <MudGrid Justify="Justify.Center" Spacing="2">
+
+                @for (int i = 0; i < questions[currentQuestion].Answers.Count; i++)
+                {
+                    var answer = questions[currentQuestion].Answers[i];
+
+                    <MudItem xs="6" class="d-flex justify-center" @key="answer">
+
+                        <MudButton
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="@GetButtonClass(answer)"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
+                        width: 220px;
+                        height: 70px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        border-radius: 16px;
+                    ">
+
+                            @answer
+
+                        </MudButton>
+
+                    </MudItem>
+                }
+
+            </MudGrid>
+        }
+        
+        @if (questions[currentQuestion].IsMultiChoice || questions[currentQuestion].IsTextAnswer)
+        {
+            <MudButton
+                Class="mt-4 submit-glow"
+                Variant="Variant.Filled"
+                Color="Color.Inherit"
+                disableElevation="true"
+                Disabled="@(answered || 
+                          (questions[currentQuestion].IsMultiChoice && selectedAnswers.Count == 0) ||
+                          (questions[currentQuestion].IsTextAnswer && string.IsNullOrWhiteSpace(textAnswer)))"
+                OnClick="SubmitAnswer">
+
+                Submit Answer
+            </MudButton>
+        }
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton 
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+        
+        
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+    
+</div>
+    
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+    
+    string textAnswer = "";
+    
+    HashSet<string> selectedAnswers = new(StringComparer.OrdinalIgnoreCase);
+
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons - multi answers
+    /// </summary>
+    // csharp
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+
+        questions = questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+            {
+                Question = q.Question,
+                // Preserve single-answer field
+                CorrectAnswer = q.CorrectAnswer,
+                // Preserve multi-answer list; if missing but single-correct exists, normalize into list
+                CorrectAnswers = (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+                    ? q.CorrectAnswers.ToList()
+                    : (!string.IsNullOrWhiteSpace(q.CorrectAnswer) ? new List<string> { q.CorrectAnswer } : new List<string>()),
+                // Shuffle choices
+                Answers = q.Answers?.OrderBy(a => rnd.Next()).ToList() ?? new List<string>(),
+                // Preserve text/multi flags and keywords
+                IsTextAnswer = q.IsTextAnswer,
+                // Preserve code snippet so it shows after shuffle
+                CodeSnippet = q.CodeSnippet,
+                Keywords = q.Keywords?.ToList() ?? new List<string>()
+            })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+
+    List<QuizQuestion> questions = new()
+{
+    
+    // Multi answer question
+    new QuizQuestion
+    {
+        Question = "API-kontrakt – kärnkomponenter. Vilka ingår?",
+        Answers = new()
+        {
+            "Requestmodell",
+            "Responsemodell",
+            "Databasindex",
+            "Statuskoder",
+            "Versionshantering (Git)"
+        },
+        CorrectAnswers = new()
+        {
+            "Requestmodell",
+            "Responsemodell",
+            "Statuskoder"
+        },
+    },
+    
+    new QuizQuestion
+    {
+        Question = "POST – korrekt HTTP-beteende vid skapande av resurs",
+        Answers = new()
+        {
+            "Returnera 200 OK",
+            "Returnera 201 Created",
+            "Inkludera Location-header till ny resurs",
+            "Inkludera Id till ny resurs",
+            "Returnera 204 No Content"
+        },
+        CorrectAnswers = new()
+        {
+            "Returnera 201 Created",
+            "Inkludera Location-header till ny resurs"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Minimal API – vilka ansvar ska ligga i API-lagret?",
+        Answers = new()
+        {
+            "Routing",
+            "Domänlogik",
+            "Applikationsbeslut",
+            "Statuskodsmappning",
+            "Databasåtkomst"
+        },
+        CorrectAnswers = new()
+        {
+            "Routing",
+            "Statuskodsmappning"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "EF Core – vilka är krav/rekommendationer för entiteter?",
+        Answers = new()
+        {
+            "Parameterlös konstruktor",
+            "Navigation properties",
+            "Public get/set",
+            "Virtuella metoder för allt",
+            "Flera arvshierarkier"
+        },
+        CorrectAnswers = new()
+        {
+            "Parameterlös konstruktor",
+            "Navigation properties",
+            "Public get/set"
+        }
+    },
+    
+    // One answer question
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 400 Bad Request?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Valideringsfel"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 404 Not Found?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Resurs saknas"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Vilka hör till 409 Conflict?",
+        Answers = new()
+        {
+            "Valideringsfel",
+            "Resurs saknas",
+            "Logisk konflikt",
+            "Timeout",
+            "Autentiseringskrav"
+        },
+        CorrectAnswers = new()
+        {
+            "Logisk konflikt"
+        }
+    },
+    
+    // Question in text with keywords
+    // new QuizQuestion
+    // {
+    //     Question = "Resurs vs representation – förklara skillnaden (1–3 meningar)",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "url",
+    //         "identifier",
+    //         "json",
+    //         "xml",
+    //         "format",
+    //         "representation",
+    //         "data",
+    //         "rest"
+    //     }
+    // },
+    //
+    // new QuizQuestion
+    // {
+    //     Question = "409 Conflict – ge ett konkret API-exempel (t.ex. dubbelbokning, dubbelt svar, konflikt i tillstånd)",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "dubb",
+    //         "bok",
+    //         "quiz",
+    //         "redan",
+    //         "svar",
+    //         "konflikt",
+    //         "state",
+    //         "tillstånd",
+    //         "reservation",
+    //         "duplicate",
+    //         "exists"
+    //     }
+    // },
+    //
+    // new QuizQuestion
+    // {
+    //     Question = "Varför ska domänen vara fri från HTTP-koncept? Förklara varför Domain inte får känna till statuskoder eller ProblemDetails.",
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "oberoende",
+    //         "ui",
+    //         "api",
+    //         "presentation",
+    //         "transport",
+    //         "återanvänd",
+    //         "test",
+    //         "ren",
+    //         "clean",
+    //         "business",
+    //         "logik",
+    //         "koppling",
+    //         "beroende"
+    //     }
+    // },
+    //
+//     new QuizQuestion
+//     {
+//         Question =
+//             "POST – fel kontrakt\n\n" +
+//             "Vad är fel med följande endpoint?\n" +
+//             "Beskriv felet och skriv en korrekt variant.\n\n" +
+//             "Ledtråd: POST → 201 + Location.",
+//
+//         IsTextAnswer = true,
+//
+//         CodeSnippet =
+//             @"app.MapPost(""/items"", (Item item, IItemRepo repo) =>
+// {
+//     repo.Add(item);
+//     return Results.Ok(item);
+// });",
+//
+//         Keywords = new()
+//         {
+//             "201",
+//             "created",
+//             "location",
+//             "createdat",
+//             "createdatroute",
+//             "uri",
+//             "header",
+//             "rest",
+//             "kontrakt",
+//             "post",
+//             "resurs",
+//             "url"
+//         }
+//     },
+    
+    // new QuizQuestion
+    // {
+    //     Question =
+    //         "GET med 200/404 + ProblemDetails\n\n" +
+    //         "Skriv en Minimal API-endpoint som returnerar:\n\n" +
+    //         "- 200 OK när produkten hittas\n" +
+    //         "- 404 NotFound med ProblemDetails\n\n" +
+    //         "Kort, ca 3–6 rader.",
+    //
+    //     IsTextAnswer = true,
+    //
+    //     Keywords = new()
+    //     {
+    //         "mapget",
+    //         "get",
+    //         "notfound",
+    //         "problemdetails",
+    //         "results.notfound",
+    //         "results.ok",
+    //         "404",
+    //         "200",
+    //         "id",
+    //         "repo",
+    //         "return"
+    //     }
+    // },
+    
+    // Writing Questions with answer options
+    
+    new QuizQuestion
+    {
+        Question = "Resurs vs representation – vad är skillnaden?",
+
+        Answers = new()
+        {
+            "En resurs är datan, representation är hur den visas (t.ex. JSON/XML)",
+            "En resurs är ett UI, representation är backend",
+            "En resurs är en databas, representation är ett API",
+            "En resurs är alltid en URL, representation är alltid HTML",
+            "Det finns ingen skillnad"
+        },
+
+        CorrectAnswers = new()
+        {
+            "En resurs är datan, representation är hur den visas (t.ex. JSON/XML)"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Vilket är ett korrekt exempel på 409 Conflict?",
+
+        Answers = new()
+        {
+            "Försöka boka ett rum som redan är bokat",
+            "Försöka logga in med fel lösenord",
+            "Servern är nere",
+            "En resurs saknas",
+            "Ogiltigt JSON-format"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Försöka boka ett rum som redan är bokat"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question = "Varför ska Domain vara fri från HTTP-koncept?",
+
+        Answers = new()
+        {
+            "För att affärslogiken ska vara oberoende av API och transport",
+            "För att göra koden längre",
+            "För att snabba upp nätverket",
+            "För att slippa skriva statuskoder",
+            "För att UI ska fungera bättre"
+        },
+
+        CorrectAnswers = new()
+        {
+            "För att affärslogiken ska vara oberoende av API och transport"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question =
+            "POST – fel kontrakt\n\n" +
+            "Vad är fel med följande endpoint?",
+
+        CodeSnippet =
+            @"app.MapPost(""/items"", (Item item, IItemRepo repo) =>
+{
+    repo.Add(item);
+    return Results.Ok(item);
+});",
+
+        Answers = new()
+        {
+            "Den ska returnera 201 Created med Location-header, inte 200 OK",
+            "Den använder fel HTTP-metod",
+            "Den saknar validering",
+            "Den bryter mot CORS",
+            "Den använder fel datatyp"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Den ska returnera 201 Created med Location-header, inte 200 OK"
+        }
+    },
+    
+    new QuizQuestion
+    {
+        Question =
+            "GET med 200/404 + ProblemDetails\n\n" +
+            "Vilken kod uppfyller kraven?",
+
+        Answers = new()
+        {
+            "Returnerar Ok när objekt finns, annars Results.Problem med 404",
+            "Returnerar alltid Ok",
+            "Returnerar alltid NotFound",
+            "Returnerar BadRequest vid saknad produkt",
+            "Returnerar Unauthorized"
+        },
+
+        CorrectAnswers = new()
+        {
+            "Returnerar Ok när objekt finns, annars Results.Problem med 404"
+        }
+    },
+    
+    };
+
+    
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        var question = questions[currentQuestion];
+
+        if (!question.IsMultiChoice)
+        {
+            // SINGLE choice → välj + rätta direkt
+            selectedAnswers.Clear();
+            selectedAnswers.Add(answer);
+
+            SubmitAnswer();
+            return;
+        }
+
+        // MULTI choice → toggle
+        if (selectedAnswers.Contains(answer))
+            selectedAnswers.Remove(answer);
+        else
+            selectedAnswers.Add(answer);
+
+        StateHasChanged();
+    }
+    
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+        textAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
+
+        // after submission
+        var correct = GetCorrectSet(questions[currentQuestion]);
+
+        if (correct.Contains(answer))
+            return "glow-button glow-selected"; // correct
+
+        if (selectedAnswers.Contains(answer) && !correct.Contains(answer))
+            return "glow-button glow-wrong"; // wrongly selected
+
+        return "glow-button";
+    }
+    
+    void SubmitAnswer()
+    {
+        answered = true;
+
+        var question = questions[currentQuestion];
+
+        // TEXT ANSWER
+        if (question.IsTextAnswer)
+        {
+            var input = textAnswer?.ToLowerInvariant() ?? "";
+
+            int hits = question.Keywords?.Count(k => input.Contains((k ?? "").ToLowerInvariant())) ?? 0;
+
+            bool isCorrect = hits >= 2; // minst 2 keywords
+
+            if (isCorrect)
+            {
+                score++;
+                feedbackMessage = "Bra svar! ✅";
+                feedbackColor = Color.Success;
+            }
+            else
+            {
+                feedbackMessage = "För kort / saknar viktiga begrepp ❌";
+                feedbackColor = Color.Error;
+            }
+
+            return;
+        }
+
+        // MULTI / SINGLE choice logic - normalize correct answers
+        var correctSet = GetCorrectSet(question);
+
+        bool isCorrectMulti =
+            selectedAnswers.Count == correctSet.Count &&
+            selectedAnswers.All(a => correctSet.Contains(a));
+
+        if (isCorrectMulti)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            var correctText = string.Join(", ", correctSet);
+
+            feedbackMessage = $"Wrong 😢 Correct: {correctText}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    HashSet<string> GetCorrectSet(QuizQuestion q)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (q == null)
+            return set;
+
+        if (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+        {
+            foreach (var a in q.CorrectAnswers)
+                set.Add(a);
+        }
+        else if (!string.IsNullOrWhiteSpace(q.CorrectAnswer))
+        {
+            set.Add(q.CorrectAnswer);
+        }
+
+        return set;
+    }
+}

@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+# Run workflow on every push to the gh branch
+on:
+  push:
+    branches: [ gh ]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout the code
+    - uses: actions/checkout@v4
+
+    # Install .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    # Publish the app
+    - name: Publish .NET Project
+      run: dotnet publish QuizGame.WASM.csproj -c Release -o release --nologo
+      
+    # Change base-tag in index.html to match GitHub Pages repository name
+    - name: Change base-tag in index.html
+      run: |
+        sed -i 's/<base href="\/" \/>/<base href="\/QuizGame.WASM\/" \/>/g' release/wwwroot/index.html
+
+    # Add .nojekyll file to disable Jekyll
+    - name: Add .nojekyll file
+      run: touch release/wwwroot/.nojekyll
+      
+    # Upload artifact for deployment
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'release/wwwroot'
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

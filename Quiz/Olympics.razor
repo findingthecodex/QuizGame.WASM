@@ -1,0 +1,352 @@
+@page "/quiz/olympics"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        🏅 Olympics Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+        <!-- The Question -->
+        <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+            <MudText Typo="Typo.h2" Class="mb-3">
+                @questions[currentQuestion].Question
+            </MudText>
+
+            <!-- Answer choices -->
+            <MudGrid Justify="Justify.Center" Spacing="2">
+
+                @foreach (var answer in questions[currentQuestion].Answers)
+                {
+                    <MudItem xs="6" class="d-flex justify-center">
+
+                        <MudButton 
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="@GetButtonClass(answer)"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                            @answer
+                        </MudButton>
+
+                    </MudItem>
+                }
+            </MudGrid>
+
+            <!-- Correct or Wrong text -->
+            @if (answered)
+            {
+                <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                    @feedbackMessage
+                </MudText>
+
+                <!-- Next Question button -->
+                <MudButton 
+                    Class="mt-3"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    OnClick="NextQuestion"
+                    Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                    Next Question
+                </MudButton>
+            }
+        
+        
+
+        </MudCard>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4">
+            Score: @score
+        </MudText>
+    }
+    
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+    
+    // Green red button
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        selectedAnswer = answer;
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    string GetButtonClass(string answer)
+    {
+        // Innan man svarat
+        if (!answered)
+            return answer == selectedAnswer
+                ? "glow-button glow-preselect"
+                : "glow-button";
+
+        // Efter svar
+
+        // Rätt svar → grön
+        if (answer == questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-selected";
+
+        // Fel valt → röd
+        if (answer == selectedAnswer &&
+            answer != questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+    
+    string selectedAnswer = "";
+
+    List<QuizQuestion> questions = new()
+    { 
+        new QuizQuestion
+{
+    Question = "Which city hosted the 2016 Summer Olympics?",
+    CorrectAnswer = "Rio de Janeiro",
+    Answers = new() { "Tokyo", "London", "Beijing", "Rio de Janeiro" }
+},
+new QuizQuestion
+{
+    Question = "Which country has won the most Olympic gold medals overall?",
+    CorrectAnswer = "United States",
+    Answers = new() { "China", "Russia", "United States", "Germany" }
+},
+new QuizQuestion
+{
+    Question = "What do the five Olympic rings represent?",
+    CorrectAnswer = "The five continents",
+    Answers = new() { "Five sports", "Five values", "The five continents", "Five founders" }
+},
+new QuizQuestion
+{
+    Question = "Which sport is known as the 'king of Olympic sports'?",
+    CorrectAnswer = "Athletics",
+    Answers = new() { "Swimming", "Gymnastics", "Athletics", "Cycling" }
+},
+new QuizQuestion
+{
+    Question = "Who is the most decorated Olympian of all time?",
+    CorrectAnswer = "Michael Phelps",
+    Answers = new() { "Usain Bolt", "Michael Phelps", "Carl Lewis", "Mark Spitz" }
+},
+new QuizQuestion
+{
+    Question = "In which year were the first modern Olympic Games held?",
+    CorrectAnswer = "1896",
+    Answers = new() { "1900", "1896", "1912", "1888" }
+},
+new QuizQuestion
+{
+    Question = "Which country hosted the 2020 Olympics?",
+    CorrectAnswer = "Japan",
+    Answers = new() { "China", "South Korea", "Japan", "Australia" }
+},
+new QuizQuestion
+{
+    Question = "Which Olympic sport uses a piste, épée, and sabre?",
+    CorrectAnswer = "Fencing",
+    Answers = new() { "Boxing", "Fencing", "Taekwondo", "Judo" }
+},
+new QuizQuestion
+{
+    Question = "Which Swedish athlete won Olympic gold in pole vault in 2021?",
+    CorrectAnswer = "Armand Duplantis",
+    Answers = new() { "Patrik Sjöberg", "Christian Olsson", "Armand Duplantis", "Ludvig Åberg" }
+},
+new QuizQuestion
+{
+    Question = "What is the Olympic motto?",
+    CorrectAnswer = "Faster, Higher, Stronger",
+    Answers = new() { "Never Give Up", "Stronger Together", "Faster, Higher, Stronger", "One World" }
+},
+new QuizQuestion
+{
+    Question = "Which sport did Usain Bolt dominate in the Olympics?",
+    CorrectAnswer = "Sprinting",
+    Answers = new() { "Marathon", "Sprinting", "Long Jump", "Hurdles" }
+},
+new QuizQuestion
+{
+    Question = "Which country hosted the 2008 Summer Olympics?",
+    CorrectAnswer = "China",
+    Answers = new() { "Japan", "South Korea", "China", "Thailand" }
+},
+new QuizQuestion
+{
+    Question = "Which Olympic event includes the disciplines slalom and giant slalom?",
+    CorrectAnswer = "Alpine Skiing",
+    Answers = new() { "Snowboarding", "Biathlon", "Alpine Skiing", "Cross-Country" }
+},
+new QuizQuestion
+{
+    Question = "What metal is awarded for second place at the Olympics?",
+    CorrectAnswer = "Silver",
+    Answers = new() { "Gold", "Bronze", "Silver", "Platinum" }
+},
+new QuizQuestion
+{
+    Question = "Which gymnast is famous for winning four gold medals in Rio 2016?",
+    CorrectAnswer = "Simone Biles",
+    Answers = new() { "Nadia Comaneci", "Simone Biles", "Aly Raisman", "Sunisa Lee" }
+},
+
+new QuizQuestion
+{
+    Question = "Which city hosted the 2012 Summer Olympics?",
+    CorrectAnswer = "London",
+    Answers = new() { "Paris", "London", "Rome", "Madrid" }
+},
+new QuizQuestion
+{
+    Question = "Which Olympic sport features the pommel horse and parallel bars?",
+    CorrectAnswer = "Gymnastics",
+    Answers = new() { "Wrestling", "Gymnastics", "Diving", "Weightlifting" }
+},
+new QuizQuestion
+{
+    Question = "Who won gold in men's 100m at the Tokyo 2020 Olympics?",
+    CorrectAnswer = "Lamont Marcell Jacobs",
+    Answers = new() { "Usain Bolt", "Justin Gatlin", "Lamont Marcell Jacobs", "Noah Lyles" }
+},
+new QuizQuestion
+{
+    Question = "Which country hosted the first Winter Olympics?",
+    CorrectAnswer = "France",
+    Answers = new() { "Switzerland", "France", "Norway", "Sweden" }
+},
+new QuizQuestion
+{
+    Question = "Which Olympic sport includes the events foil, épée, and sabre?",
+    CorrectAnswer = "Fencing",
+    Answers = new() { "Karate", "Taekwondo", "Fencing", "Judo" }
+} 
+
+    };
+}

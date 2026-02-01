@@ -1,0 +1,350 @@
+@page "/quiz/boxing"
+
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        🥊 Boxing Quiz
+    </MudText>
+    
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/10
+    </MudText>
+    
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / 10
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+    
+
+        <!-- The Question -->
+        <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+            <MudText Typo="Typo.h2" Class="mb-3">
+                @questions[currentQuestion].Question
+            </MudText>
+
+            <!-- Answer choices -->
+            <MudGrid Justify="Justify.Center" Spacing="2">
+
+                @foreach (var answer in questions[currentQuestion].Answers)
+                {
+                    <MudItem xs="6" class="d-flex justify-center">
+
+                        <MudButton 
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="@GetButtonClass(answer)"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
+                    width: 220px;
+                    height: 70px;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    border-radius: 16px;
+                ">
+
+                            @answer
+                        </MudButton>
+
+                    </MudItem>
+                }
+            </MudGrid>
+
+            <!-- Correct or Wrong text -->
+            @if (answered)
+            {
+                <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                    @feedbackMessage
+                </MudText>
+
+                <!-- Next Question button -->
+                <MudButton 
+                    Class="mt-3"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    OnClick="NextQuestion"
+                    Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                    Next Question
+                </MudButton>
+            }
+
+        </MudCard>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4">
+            Score: @score
+        </MudText>
+    }
+    
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+    
+
+@code {
+    
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons
+    /// </summary>
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+        questions=questions
+            .OrderBy(q => rnd.Next())
+            .Select(q => new QuizQuestion
+                {
+                    Question = q.Question,
+                    CorrectAnswer = q.CorrectAnswer,
+                    Answers = q.Answers.OrderBy(a => rnd.Next())
+                        .ToList()
+                })
+            .Take(totalQuestions)
+            .ToList();
+    }
+    
+    // Green red button
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+    
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        selectedAnswer = answer;
+        answered = true;
+
+        if (answer == questions[currentQuestion].CorrectAnswer)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Wrong 😢 Correct answer: {questions[currentQuestion].CorrectAnswer}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+    
+    string GetButtonClass(string answer)
+    {
+        // Innan man svarat
+        if (!answered)
+            return answer == selectedAnswer
+                ? "glow-button glow-preselect"
+                : "glow-button";
+
+        // Efter svar
+
+        // Rätt svar → grön
+        if (answer == questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-selected";
+
+        // Fel valt → röd
+        if (answer == selectedAnswer &&
+            answer != questions[currentQuestion].CorrectAnswer)
+            return "glow-button glow-wrong";
+
+        return "glow-button";
+    }
+    
+    string selectedAnswer = "";
+
+    List<QuizQuestion> questions = new()
+    { 
+        
+        new QuizQuestion
+{
+    Question = "Who became the first undisputed heavyweight champion of the four-belt era in 1999?",
+    CorrectAnswer = "Lennox Lewis",
+    Answers = new() { "Mike Tyson", "Evander Holyfield", "Lennox Lewis", "Tyson Fury" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer defeated Deontay Wilder in 2020?",
+    CorrectAnswer = "Tyson Fury",
+    Answers = new() { "Anthony Joshua", "Tyson Fury", "Oleksandr Usyk", "Andy Ruiz Jr." }
+},
+new QuizQuestion
+{
+    Question = "How many professional fights did Floyd Mayweather win in his career?",
+    CorrectAnswer = "50",
+    Answers = new() { "45", "48", "50", "52" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer unified the heavyweight division in 2024?",
+    CorrectAnswer = "Oleksandr Usyk",
+    Answers = new() { "Tyson Fury", "Anthony Joshua", "Oleksandr Usyk", "Deontay Wilder" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer is nicknamed 'Canelo'?",
+    CorrectAnswer = "Saul Alvarez",
+    Answers = new() { "Juan Marquez", "Saul Alvarez", "Oscar De La Hoya", "Julio Chavez" }
+},
+new QuizQuestion
+{
+    Question = "Who defeated Anthony Joshua in 2019 to become heavyweight champion?",
+    CorrectAnswer = "Andy Ruiz Jr.",
+    Answers = new() { "Oleksandr Usyk", "Andy Ruiz Jr.", "Tyson Fury", "Joseph Parker" }
+},
+new QuizQuestion
+{
+    Question = "Which legendary boxer retired undefeated with a 49-0 record?",
+    CorrectAnswer = "Rocky Marciano",
+    Answers = new() { "Joe Louis", "Rocky Marciano", "Muhammad Ali", "George Foreman" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer won gold at the 2012 Olympics and turned professional in 2013?",
+    CorrectAnswer = "Anthony Joshua",
+    Answers = new() { "Tyson Fury", "Anthony Joshua", "Joe Joyce", "Daniel Dubois" }
+},
+new QuizQuestion
+{
+    Question = "Who won the first heavyweight title fight between Fury and Wilder?",
+    CorrectAnswer = "Tyson Fury",
+    Answers = new() { "Deontay Wilder", "Tyson Fury", "Draw", "Anthony Joshua" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer is known for the 'Philly Shell' defense?",
+    CorrectAnswer = "Floyd Mayweather",
+    Answers = new() { "James Toney", "Floyd Mayweather", "Andre Ward", "Roy Jones Jr." }
+},
+new QuizQuestion
+{
+    Question = "Who defeated Wladimir Klitschko in 2015 at Wembley?",
+    CorrectAnswer = "Tyson Fury",
+    Answers = new() { "Anthony Joshua", "Tyson Fury", "David Haye", "Vitali Klitschko" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer became undisputed lightweight champion in 2022?",
+    CorrectAnswer = "Devin Haney",
+    Answers = new() { "Gervonta Davis", "Teofimo Lopez", "Devin Haney", "Ryan Garcia" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer famously said 'Float like a butterfly, sting like a bee'?",
+    CorrectAnswer = "Muhammad Ali",
+    Answers = new() { "Joe Frazier", "Muhammad Ali", "Sugar Ray Leonard", "Sonny Liston" }
+},
+new QuizQuestion
+{
+    Question = "Who defeated Canelo Alvarez in 2022?",
+    CorrectAnswer = "Dmitry Bivol",
+    Answers = new() { "Gennady Golovkin", "Dmitry Bivol", "Sergey Kovalev", "Artur Beterbiev" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer is known as 'The Gypsy King'?",
+    CorrectAnswer = "Tyson Fury",
+    Answers = new() { "Anthony Joshua", "Tyson Fury", "Billy Joe Saunders", "Daniel Dubois" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer became undisputed super middleweight champion in 2021?",
+    CorrectAnswer = "Canelo Alvarez",
+    Answers = new() { "Caleb Plant", "Canelo Alvarez", "Billy Joe Saunders", "Callum Smith" }
+},
+new QuizQuestion
+{
+    Question = "Who holds the record for most heavyweight title defenses?",
+    CorrectAnswer = "Joe Louis",
+    Answers = new() { "Muhammad Ali", "Joe Louis", "Larry Holmes", "Wladimir Klitschko" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer won Olympic gold in 2016 and turned pro shortly after?",
+    CorrectAnswer = "Tony Yoka",
+    Answers = new() { "Joe Joyce", "Tony Yoka", "Anthony Joshua", "Oleksandr Usyk" }
+},
+new QuizQuestion
+{
+    Question = "Which boxer defeated Manny Pacquiao in 2012?",
+    CorrectAnswer = "Juan Manuel Marquez",
+    Answers = new() { "Floyd Mayweather", "Juan Manuel Marquez", "Tim Bradley", "Miguel Cotto" }
+},
+new QuizQuestion
+{
+    Question = "Who became undisputed heavyweight champion in 2024 after defeating Tyson Fury?",
+    CorrectAnswer = "Oleksandr Usyk",
+    Answers = new() { "Anthony Joshua", "Oleksandr Usyk", "Deontay Wilder", "Andy Ruiz Jr." }
+} 
+
+    };
+}

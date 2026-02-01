@@ -1,0 +1,104 @@
+@page "/oopadvancedcategory"
+@inject NavigationManager Nav
+
+<div style="
+    min-height: 90vh; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding-top: 1rem;">
+
+    <div style="text-align:center;" class="mb-6">
+
+        <MudText Typo="Typo.h1" Class="fw-bold">
+            💻 OOP Advanced
+        </MudText>
+
+        <MudText Typo="Typo.subtitle2"
+                 Style="font-style:italic; opacity:0.8;">
+            Öva inför duggan
+        </MudText>
+
+    </div>
+
+    <MudButton
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="Vecka1"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Vecka 1
+    </MudButton>
+    
+    <MudButton
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="Vecka2"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Vecka 2
+    </MudButton>
+    
+@*     <MudButton *@
+@*         Variant="Variant.Filled"  *@
+@*         Color="Color.Primary" *@
+@*         Class="glow-button" *@
+@*         OnClick="OOPAdvanced" *@
+@*         Style=" *@
+@*         width: 300px; *@
+@*         height: 110px; *@
+@*         font-size: 2rem; *@
+@*         font-weight: 600; *@
+@*         border-radius: 20px; *@
+@*     "> *@
+@*      *@
+@*         OOP Advanced *@
+@*     </MudButton> *@
+
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto; 
+    padding-bottom: 16px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+    
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+
+    private void Vecka1()
+    {
+        Nav.NavigateTo("quiz/oopadvanced/vecka1");
+    }
+
+    private void Vecka2()
+    {
+        Nav.NavigateTo("quiz/oopadvanced/vecka2");
+    }
+
+    // private void OOPAdvanced()
+    // {
+    //     Nav.NavigateTo("quiz/oopadvanced");
+    // }
+}

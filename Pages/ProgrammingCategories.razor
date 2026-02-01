@@ -6,7 +6,7 @@
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    padding-top: 15rem;">
+    padding-top: 1rem;">
 
     <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-6">
         💻 Programming
@@ -52,12 +52,23 @@
         Style="
         width: 300px;
         height: 110px;
-        font-size: 2rem;
-        font-weight: 600;
         border-radius: 20px;
     ">
-    
-        OOP Advanced
+
+        <div style="line-height:1.2; text-align:center;">
+            <div style="font-size:2rem; font-weight:600;">
+                OOP Advanced
+            </div>
+
+            <div style="
+            font-size:0.9rem;
+            font-style:italic;
+            opacity:0.85;
+            margin-top:4px;">
+                Öva inför duggan
+            </div>
+        </div>
+
     </MudButton>
 
 </div>
@@ -77,23 +88,19 @@
 </div>
 
 @code {
-    private void QuizGaming()
-    {
-        Nav.NavigateTo("/quiz/gaming");
-    }
 
     private void OOPGrund()
     {
-        Nav.NavigateTo("/quiz/oopgrund");
+        Nav.NavigateTo("quiz/oopgrund");
     }
 
     private void Databaser()
     {
-        Nav.NavigateTo("/quiz/databaser");
+        Nav.NavigateTo("quiz/databaser");
     }
 
     private void OOPAdvanced()
     {
-        Nav.NavigateTo("/quiz/oopadvanced");
+        Nav.NavigateTo("oopadvancedcategory");
     }
 }
