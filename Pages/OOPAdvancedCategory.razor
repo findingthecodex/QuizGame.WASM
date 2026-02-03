@@ -53,21 +53,51 @@
         Vecka 2
     </MudButton>
     
-@*     <MudButton *@
-@*         Variant="Variant.Filled"  *@
-@*         Color="Color.Primary" *@
-@*         Class="glow-button" *@
-@*         OnClick="OOPAdvanced" *@
-@*         Style=" *@
-@*         width: 300px; *@
-@*         height: 110px; *@
-@*         font-size: 2rem; *@
-@*         font-weight: 600; *@
-@*         border-radius: 20px; *@
-@*     "> *@
-@*      *@
-@*         OOP Advanced *@
-@*     </MudButton> *@
+    <MudButton
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="Vecka3"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+    ">
+
+        Vecka 3
+
+        <span style="
+        position: absolute;
+        top: 6px;
+        right: 8px;
+
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: white;
+
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+
+        padding: 4px 9px;
+        border-radius: 999px;
+
+        box-shadow:
+            0 0 6px #00c6ff,
+            0 0 12px #00c6ff,
+            0 0 20px #0072ff;
+
+        text-shadow:
+            0 0 4px #00c6ff,
+            0 0 8px #00c6ff;
+    ">
+            NYTT
+        </span>
+
+    </MudButton>
 
 </div>
 
@@ -97,8 +127,8 @@
         Nav.NavigateTo("quiz/oopadvanced/vecka2");
     }
 
-    // private void OOPAdvanced()
-    // {
-    //     Nav.NavigateTo("quiz/oopadvanced");
-    // }
+    private void Vecka3()
+    {
+        Nav.NavigateTo("quiz/oopadvanced/vecka3");
+    }
 }
