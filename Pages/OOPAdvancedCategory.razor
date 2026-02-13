@@ -54,10 +54,26 @@
     </MudButton>
     
     <MudButton
-        Variant="Variant.Filled"
+        Variant="Variant.Filled" 
         Color="Color.Primary"
         Class="glow-button"
         OnClick="Vecka3"
+        Style="
+        width: 300px;
+        height: 110px;
+        font-size: 2rem;
+        font-weight: 600;
+        border-radius: 20px;
+    ">
+    
+        Vecka 3
+    </MudButton>
+    
+    <MudButton
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        Class="glow-button"
+        OnClick="Vecka4"
         Style="
         width: 300px;
         height: 110px;
@@ -68,7 +84,7 @@
         overflow: hidden;
     ">
 
-        Vecka 3
+        Vecka 4
 
         <span style="
         position: absolute;
@@ -96,6 +112,8 @@
     ">
             NYTT
         </span>
+        
+        
 
     </MudButton>
 
@@ -130,5 +148,10 @@
     private void Vecka3()
     {
         Nav.NavigateTo("quiz/oopadvanced/vecka3");
+    }
+
+    private void Vecka4()
+    {
+        Nav.NavigateTo("quiz/oopadvanced/vecka4");
     }
 }
