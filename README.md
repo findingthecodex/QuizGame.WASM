@@ -80,22 +80,6 @@ QuizGame.WASM/
 └── deploy.sh            # Manuellt deployment-script
 ```
 
-## 🔧 Felsökning
-
-**Problem: Sidan visar inte rätt efter deployment**
-- Kontrollera att **GitHub Actions** är vald som source i Settings → Pages
-- Vänta några minuter efter push (GitHub Pages kan ta 1-5 minuter att uppdatera)
-- Kolla Actions-fliken för att se att workflow körts utan fel
-- Rensa webbläsarens cache
-
-**Problem: 404 när du navigerar till undersidor**
-- Kontrollera att `404.html` finns i wwwroot (skapas automatiskt av workflow)
-- Kontrollera att `.nojekyll` filen finns
-
-**Problem: Sidan laddar inte CSS eller JavaScript**
-- Kontrollera att base href är korrekt i index.html (`/QuizGame.WASM/`)
-- Se till att alla tillgångar använder relativa paths
-
 ## 📝 License
 
 © 2026 FindingTheCode. All rights reserved.
