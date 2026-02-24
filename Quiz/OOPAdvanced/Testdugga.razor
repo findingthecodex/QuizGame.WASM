@@ -502,7 +502,18 @@
     // ── Lifecycle ─────────────────────────────────────────────────────
     protected override void OnInitialized()
     {
+        ShuffleAnswers();
         BuildSectionMax();
+    }
+
+    void ShuffleAnswers()
+    {
+        var rnd = new Random();
+        foreach (var q in questions)
+        {
+            if (q.Answers != null && q.Answers.Count > 1)
+                q.Answers = q.Answers.OrderBy(_ => rnd.Next()).ToList();
+        }
     }
 
     void BuildSectionMax()
@@ -598,6 +609,7 @@
         selectedAnswers.Clear();
         textAnswer = "";
         sectionScores = new() { ["Del A"] = 0, ["Del B"] = 0, ["Del C"] = 0 };
+        ShuffleAnswers();
     }
 
     string GetButtonClass(string answer)
