@@ -19,6 +19,12 @@ public class QuizQuestion
 
         // Text answer (keywords)
         public List<string> Keywords { get; set; } = new();
+
+        // Points this question is worth
+        public int Points { get; set; } = 1;
+
+        // Section label (e.g. "Del A", "Del B", "Del C")
+        public string? Section { get; set; }
         
         public IEnumerable<string> GetCorrectAnswers()
         {
