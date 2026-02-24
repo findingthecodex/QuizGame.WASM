@@ -155,17 +155,17 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Del A – Teoretiska frågor</td>
+                        <td>Del A – Flervalsfrågor</td>
                         <td>@sectionScores["Del A"]</td>
                         <td>@sectionMax["Del A"]</td>
                     </tr>
                     <tr>
-                        <td>Del B – Kod &amp; resonemang</td>
+                        <td>Del B – Kortsvar</td>
                         <td>@sectionScores["Del B"]</td>
                         <td>@sectionMax["Del B"]</td>
                     </tr>
                     <tr>
-                        <td>Del C – Fritext</td>
+                        <td>Del C – Kod &amp; resonemang</td>
                         <td>@sectionScores["Del C"]</td>
                         <td>@sectionMax["Del C"]</td>
                     </tr>
@@ -210,114 +210,292 @@
     // ── Questions ─────────────────────────────────────────────────────
     List<QuizQuestion> questions = new()
     {
-        // ═══ DEL A – Teoretiska frågor (4 × 3p = 12p) ════════════════
+        // ═══ DEL A – Flervalsfrågor (18p) ════════════════════════════
 
+        // 1) Interface-kontrakt (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del A", Points = 3,
-            Question = "Del A – Flervalsfråga (3p): Rendering – när triggas en omrendering automatiskt i Blazor? (Välj 3)",
-            Answers = new() { "När state ändras i en event handler", "När StateHasChanged() anropas", "När en async lifecycle-metod slutförs", "När DOM ändras direkt via JavaScript", "Endast vid sidladdning" },
-            CorrectAnswers = new() { "När state ändras i en event handler", "När StateHasChanged() anropas", "När en async lifecycle-metod slutförs" }
+            Section = "Del A", Points = 1,
+            Question = "1) Interface-kontrakt – vilket påstående beskriver interface-kontrakt korrekt?",
+            Answers = new()
+            {
+                "A. Ett interface kan innehålla implementerade instansmetoder i alla C#-versioner",
+                "B. Ett interface definierar en uppsättning metoder/properties som en klass kan implementera",
+                "C. Ett interface lagrar tillstånd för objektet som implementerar det",
+                "D. Ett interface tvingar fram trådsäkerhet i implementerande klasser"
+            },
+            CorrectAnswer = "B. Ett interface definierar en uppsättning metoder/properties som en klass kan implementera"
         },
 
+        // 2) Abstrakta klasser & standardpraktik (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del A", Points = 3,
-            Question = "Del A – Flervalsfråga (3p): Dependency Injection – varför registreras en state-container ofta som Scoped? (Välj 3)",
-            Answers = new() { "En instans per användarsession", "Delas mellan komponenter i samma circuit", "För att undvika global statisk state", "För att skapa ny instans varje render", "För bättre DOM-prestanda" },
-            CorrectAnswers = new() { "En instans per användarsession", "Delas mellan komponenter i samma circuit", "För att undvika global statisk state" }
+            Section = "Del A", Points = 2,
+            Question = "2) Abstrakta klasser & standardpraktik – vad stämmer? (Välj 2)",
+            Answers = new()
+            {
+                "A. Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "B. Abstrakta klasser kan ha fält och konstruktorer",
+                "C. Abstrakta klasser används när implementationer inte delar intern hjälplogik",
+                "D. Abstrakta klasser kan aldrig ärvas",
+                "E. Abstrakta klasser kompileras inte till IL"
+            },
+            CorrectAnswers = new()
+            {
+                "A. Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "B. Abstrakta klasser kan ha fält och konstruktorer"
+            }
         },
 
+        // 3) Blazor – parametrar & livscykel (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del A", Points = 3,
-            Question = "Del A – Flervalsfråga (3p): Async i Blazor – varför ska man undvika async void? (Välj 3)",
-            Answers = new() { "Felhantering fungerar sämre", "Kan orsaka oobserverade exceptions", "Går inte att await:a", "Ger bättre prestanda", "Blockerar UI-tråden" },
-            CorrectAnswers = new() { "Felhantering fungerar sämre", "Kan orsaka oobserverade exceptions", "Går inte att await:a" }
+            Section = "Del A", Points = 2,
+            Question = "3) Blazor – parametrar & livscykel – vad stämmer om Blazor-komponenter och parametrar? (Välj 2)",
+            Answers = new()
+            {
+                "A. En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "B. OnParametersSetAsync körs när parametrar sätts eller ändras",
+                "C. Blazor-komponenter kan inte ha asynkrona livscykelmetoder",
+                "D. En komponent kan aldrig trigga rendering manuellt",
+                "E. [Parameter] fungerar bara för string"
+            },
+            CorrectAnswers = new()
+            {
+                "A. En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "B. OnParametersSetAsync körs när parametrar sätts eller ändras"
+            }
         },
 
+        // 4) Pull Request – praxis (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del A", Points = 3,
-            Question = "Del A – Flervalsfråga (3p): State-flöde – vilken modell är korrekt? (Välj 2)",
-            Answers = new() { "UI styr state direkt via DOM-manipulation", "State → Render → UI", "UI → Render → State", "Event → State change → Render", "Render → Event → State" },
-            CorrectAnswers = new() { "State → Render → UI", "Event → State change → Render" }
+            Section = "Del A", Points = 1,
+            Question = "4) Pull Request – praxis – vilket PR-upplägg underlättar granskning mest?",
+            Answers = new()
+            {
+                "A. En stor PR med flera funktioner och refaktoreringar",
+                "B. En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner",
+                "C. En PR utan beskrivning men med många commits",
+                "D. En PR som blandar kod, migrationsskript och config utan kommentarer"
+            },
+            CorrectAnswer = "B. En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner"
         },
 
-        // ═══ DEL B – Kod & resonemang (7 frågor = 22p) ════════════════
-
+        // 5) HTTP – statuspolicy (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del B", Points = 3,
-            Question = "Del B – Flervalsfråga (3p): Autentisering vs Auktorisering – vad stämmer? (Välj 3)",
-            Answers = new() { "Autentisering verifierar identitet", "Auktorisering avgör rättigheter", "Authorize-attribut skyddar backend-resurser", "UI-gating ersätter API-skydd", "401 betyder saknar rätt roll" },
-            CorrectAnswers = new() { "Autentisering verifierar identitet", "Auktorisering avgör rättigheter", "Authorize-attribut skyddar backend-resurser" }
+            Section = "Del A", Points = 2,
+            Question = "5) HTTP – statuspolicy – välj två korrekta par: (Välj 2)",
+            Answers = new()
+            {
+                "A. POST som skapar resurs → 201 Created + Location",
+                "B. DELETE som lyckas → 204 No Content",
+                "C. Valideringsfel i indata → 409 Conflict",
+                "D. Ej autentiserad → 403 Forbidden",
+                "E. Resurs saknas vid GET → 400 Bad Request"
+            },
+            CorrectAnswers = new()
+            {
+                "A. POST som skapar resurs → 201 Created + Location",
+                "B. DELETE som lyckas → 204 No Content"
+            }
         },
 
+        // 6) HTTP – mini-scenario (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del B", Points = 3,
-            Question = "Del B – Flervalsfråga (3p): Parameter-flöde – vad är korrekt om [Parameter] i ett child? (Välj 3)",
-            Answers = new() { "Sätts av föräldern", "Bör behandlas som read-only i child", "Kan trigga OnParametersSetAsync", "Ska ändras direkt i barnet", "Kräver JS-interop" },
-            CorrectAnswers = new() { "Sätts av föräldern", "Bör behandlas som read-only i child", "Kan trigga OnParametersSetAsync" }
+            Section = "Del A", Points = 1,
+            Question = "6) HTTP – mini-scenario – POST /authors försöker skapa en författare men namnet finns redan. Mest korrekta svar?",
+            Answers = new()
+            {
+                "A. 201 Created",
+                "B. 409 Conflict + ProblemDetails",
+                "C. 400 Bad Request",
+                "D. 204 No Content"
+            },
+            CorrectAnswer = "B. 409 Conflict + ProblemDetails"
         },
 
+        // 7) EF Core – relation & navigering (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del B", Points = 3,
-            Question = "Del B – Flervalsfråga (3p): Code review – varför är review viktig i team? (Välj 3)",
-            Answers = new() { "Minskar buggar", "Sprider kunskap i teamet", "Upptäcker arkitekturproblem", "Ersätter tester", "Snabbar upp merge-konflikter" },
-            CorrectAnswers = new() { "Minskar buggar", "Sprider kunskap i teamet", "Upptäcker arkitekturproblem" }
+            Section = "Del A", Points = 2,
+            Question = "7) EF Core – relation & navigering – välj två korrekta påståenden: (Välj 2)",
+            Answers = new()
+            {
+                "A. En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "B. Include / ThenInclude laddar relaterade entiteter i samma query",
+                "C. Projektion till DTO ska alltid undvikas",
+                "D. EF Core kräver att entiteter är record",
+                "E. FK placeras normalt på \"one\"-sidan"
+            },
+            CorrectAnswers = new()
+            {
+                "A. En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "B. Include / ThenInclude laddar relaterade entiteter i samma query"
+            }
         },
 
+        // 8) EF Core – AsNoTracking (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del B", Points = 4,
-            Question = "Del B – Flervalsfråga (4p): HTTP-statuskoder – vad är korrekt? (Välj 3)",
-            Answers = new() { "200 = OK", "401 = Ej inloggad", "403 = Saknar behörighet", "500 = Valideringsfel", "404 = Fel lösenord" },
-            CorrectAnswers = new() { "200 = OK", "401 = Ej inloggad", "403 = Saknar behörighet" }
+            Section = "Del A", Points = 1,
+            Question = "8) EF Core – AsNoTracking – vilket påstående stämmer?",
+            Answers = new()
+            {
+                "A. AsNoTracking() gör att entiteter spåras för ändringar",
+                "B. AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier",
+                "C. AsNoTracking() kör automatiskt SaveChanges()",
+                "D. AsNoTracking() aktiverar lazy loading"
+            },
+            CorrectAnswer = "B. AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier"
         },
 
+        // 9) Autentisering – saknad/utgången token (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del B", Points = 4,
-            Question = "Del B – Flervalsfråga (4p): Blazor lifecycle-metoder – vad stämmer? (Välj 3)",
-            Answers = new() { "OnInitializedAsync körs en gång vid komponentstart", "OnParametersSetAsync körs när parametrar uppdateras", "OnAfterRenderAsync körs efter varje render", "Dispose körs automatiskt när sidan laddas", "SetParametersAsync kan inte overridas" },
-            CorrectAnswers = new() { "OnInitializedAsync körs en gång vid komponentstart", "OnParametersSetAsync körs när parametrar uppdateras", "OnAfterRenderAsync körs efter varje render" }
+            Section = "Del A", Points = 1,
+            Question = "9) Autentisering – saknad/utgången token – klienten anropar ett skyddat API utan giltig bearer-token. Vad svarar API:t?",
+            Answers = new()
+            {
+                "A. 401 Unauthorized",
+                "B. 403 Forbidden",
+                "C. 404 Not Found",
+                "D. 400 Bad Request"
+            },
+            CorrectAnswer = "A. 401 Unauthorized"
         },
 
+        // 10) async/await – grunder (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del B", Points = 2,
-            Question = "Del B – Enkelval (2p): Vilken DI-livstid skapar en ny instans vid varje request/anrop?",
-            Answers = new() { "Singleton", "Scoped", "Transient", "Cached" },
-            CorrectAnswer = "Transient"
+            Section = "Del A", Points = 2,
+            Question = "10) async/await – grunder – vilka två påståenden stämmer? (Välj 2)",
+            Answers = new()
+            {
+                "A. await frigör tråden under I/O-väntan",
+                "B. async innebär per automatik parallell exekvering",
+                "C. En async-metod kan innehålla await",
+                "D. await startar alltid en ny tråd",
+                "E. await passar bäst för CPU-tunga beräkningar i UI-tråden"
+            },
+            CorrectAnswers = new()
+            {
+                "A. await frigör tråden under I/O-väntan",
+                "C. En async-metod kan innehålla await"
+            }
         },
 
+        // 11) Policies & claims (2p) – välj 2
         new QuizQuestion
         {
-            Section = "Del B", Points = 3,
-            Question = "Del B – Flervalsfråga (3p): Rätt mönster för delad state med notifiering i Blazor? (Välj 3)",
-            Answers = new() { "Scoped tjänst i DI som äger state", "StateChanged-event som komponenter prenumererar på", "Prenumerera i OnInitialized och avregistrera i Dispose", "Använd Singleton för delad state i WASM", "Anropa StateHasChanged() direkt i tjänsten" },
-            CorrectAnswers = new() { "Scoped tjänst i DI som äger state", "StateChanged-event som komponenter prenumererar på", "Prenumerera i OnInitialized och avregistrera i Dispose" }
+            Section = "Del A", Points = 2,
+            Question = "11) Policies & claims – välj två korrekta påståenden: (Välj 2)",
+            Answers = new()
+            {
+                "A. Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "B. Policies ersätter alltid roller",
+                "C. Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare",
+                "D. Med policies behövs inte autentisering",
+                "E. Policies kan inte kombineras med roller"
+            },
+            CorrectAnswers = new()
+            {
+                "A. Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "C. Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare"
+            }
         },
 
-        // ═══ DEL C – Fritext (2 × 4p = 8p) ═══════════════════════════
-
+        // 12) EF Core – vilken kod persisterar? (1p) – enkelval
         new QuizQuestion
         {
-            Section = "Del C", Points = 4,
+            Section = "Del A", Points = 1,
+            Question = "12) EF Core – vilken kod persisterar? – vilket alternativ leder faktiskt till att ändringar skrivs till databasen?",
+            Answers = new()
+            {
+                "A. Läsa en entitet, ändra ett fält och glömma SaveChanges()",
+                "B. Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()",
+                "C. Läsa med AsNoTracking(), ändra fält och köra await _ctx.SaveChangesAsync()",
+                "D. Skapa ny entitet i minnet och inte lägga till den i _ctx innan avslut"
+            },
+            CorrectAnswer = "B. Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()"
+        },
+
+        // ═══ DEL B – Kortsvar (12p) ═══════════════════════════════════
+
+        // 13) Grundläggande Git — commit vs branch (1p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 1,
             IsTextAnswer = true,
-            Question = "Del C – Fritext (4p): Förklara varför komposition minskar koppling. Nämn minst 2 nyckelbegrepp.",
-            Keywords = new() { "interface", "abstraktion", "utbytbar", "lös koppling", "implementation", "beroende", "inkapsling" }
+            Question = "13) Grundläggande Git — commit vs branch (1p): Förklara kort skillnaden mellan en commit och en branch. (1–2 meningar)",
+            Keywords = new() { "commit", "snapshot", "branch", "pekare", "gren", "version", "spara", "förgrening" }
         },
 
+        // 14) Statuskoder i praktiken (3p) – fritext
         new QuizQuestion
         {
-            Section = "Del C", Points = 4,
+            Section = "Del B", Points = 3,
             IsTextAnswer = true,
-            Question = "Del C – Fritext (4p): Förklara hur state styr rendering i Blazor. Nämn minst 2 nyckelbegrepp.",
-            Keywords = new() { "state", "render", "statehaschanged", "event", "lifecycle", "omrendering", "uppdatering" }
+            Question = "14) Statuskoder i praktiken (3p): Ange två HTTP-statuskoder (inte DELETE) och beskriv kort när varje ska användas enligt kursens statuskodspolicy. (2–3 meningar per kod)",
+            Keywords = new() { "200", "201", "400", "401", "403", "404", "409", "created", "ok", "bad request", "unauthorized", "forbidden", "not found", "conflict" }
+        },
+
+        // 15) Komposition i praktiken (3p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 3,
+            IsTextAnswer = true,
+            Question = "15) Komposition i praktiken (3p): Ge ett eget exempel där komposition (\"har-en/del-av\") är bättre än arv (\"är-en\"), och motivera varför. (2–4 meningar)",
+            Keywords = new() { "komposition", "har-en", "arv", "är-en", "flexibel", "utbytbar", "interface", "beroende", "lös koppling" }
+        },
+
+        // 16) ProblemDetails (3p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 3,
+            IsTextAnswer = true,
+            Question = "16) ProblemDetails (3p): Nämn två fält som ett ProblemDetails-objekt normalt innehåller och hur klienten kan använda dem. (2–3 meningar)",
+            Keywords = new() { "title", "status", "detail", "type", "instance", "problemdetails", "fält", "felkod", "felmeddelande" }
+        },
+
+        // ═══ DEL C – Kod & resonemang (12p) ══════════════════════════
+
+        // 17) EF Core – när körs SQL? (6p) – fritext med kodsnippet
+        new QuizQuestion
+        {
+            Section = "Del C", Points = 6,
+            IsTextAnswer = true,
+            Question = "17) EF Core – när körs SQL? (6p)\na) När körs SQL i förhållande till denna metod?\nb) Vad händer om anroparen direkt gör .ToList() på resultatet?\nc) Nämn en fördel med att returnera IQueryable om ett annat lager ska bygga vidare på filtrering.",
+            CodeSnippet =
+@"public IQueryable<ProductDto> GetCheapProducts(AppDbContext ctx, decimal maxPrice)
+{
+    return ctx.Products
+              .Where(p => p.Price <= maxPrice)
+              .Select(p => new ProductDto(p.Id, p.Name, p.Price));
+}",
+            Keywords = new() { "iqueryable", "tolist", "sql", "deferred", "uppskjuten", "exekvering", "query", "filtrering", "databas", "lazy" }
+        },
+
+        // 18) Blazor – parametergenererad laddning (6p) – fritext med kodsnippet
+        new QuizQuestion
+        {
+            Section = "Del C", Points = 6,
+            IsTextAnswer = true,
+            Question = "18) Blazor – parametergenererad laddning (6p)\na) Varför kan detta missa att ladda om när CategoryId ändras?\nb) Var ska laddningen ske för att reagera på parameterändringar?\nc) Hur undviker du onödiga omladdningar (nämn en enkel guard-strategi)?",
+            CodeSnippet =
+@"@code {
+    [Parameter] public int CategoryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync(CategoryId); // körs bara en gång
+    }
+
+    private Task LoadAsync(int id) => _service.LoadAsync(id);
+}",
+            Keywords = new() { "onparameterssetasync", "oninitializedasync", "parameter", "ändras", "guard", "previousid", "omladdning", "livscykel", "reagera" }
         },
     };
 
