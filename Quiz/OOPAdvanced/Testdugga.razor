@@ -219,12 +219,12 @@
             Question = "1) Interface-kontrakt – vilket påstående beskriver interface-kontrakt korrekt?",
             Answers = new()
             {
-                "A. Ett interface kan innehålla implementerade instansmetoder i alla C#-versioner",
-                "B. Ett interface definierar en uppsättning metoder/properties som en klass kan implementera",
-                "C. Ett interface lagrar tillstånd för objektet som implementerar det",
-                "D. Ett interface tvingar fram trådsäkerhet i implementerande klasser"
+                "Ett interface kan innehålla implementerade instansmetoder i alla C#-versioner",
+                "Ett interface definierar en uppsättning metoder/properties som en klass kan implementera",
+                "Ett interface lagrar tillstånd för objektet som implementerar det",
+                "Ett interface tvingar fram trådsäkerhet i implementerande klasser"
             },
-            CorrectAnswer = "B. Ett interface definierar en uppsättning metoder/properties som en klass kan implementera"
+            CorrectAnswer = "Ett interface definierar en uppsättning metoder/properties som en klass kan implementera"
         },
 
         // 2) Abstrakta klasser & standardpraktik (2p) – välj 2
@@ -234,16 +234,16 @@
             Question = "2) Abstrakta klasser & standardpraktik – vad stämmer? (Välj 2)",
             Answers = new()
             {
-                "A. Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
-                "B. Abstrakta klasser kan ha fält och konstruktorer",
-                "C. Abstrakta klasser används när implementationer inte delar intern hjälplogik",
-                "D. Abstrakta klasser kan aldrig ärvas",
-                "E. Abstrakta klasser kompileras inte till IL"
+                "Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "Abstrakta klasser kan ha fält och konstruktorer",
+                "Abstrakta klasser används när implementationer inte delar intern hjälplogik",
+                "Abstrakta klasser kan aldrig ärvas",
+                "Abstrakta klasser kompileras inte till IL"
             },
             CorrectAnswers = new()
             {
-                "A. Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
-                "B. Abstrakta klasser kan ha fält och konstruktorer"
+                "Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "Abstrakta klasser kan ha fält och konstruktorer"
             }
         },
 
@@ -254,16 +254,16 @@
             Question = "3) Blazor – parametrar & livscykel – vad stämmer om Blazor-komponenter och parametrar? (Välj 2)",
             Answers = new()
             {
-                "A. En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
-                "B. OnParametersSetAsync körs när parametrar sätts eller ändras",
-                "C. Blazor-komponenter kan inte ha asynkrona livscykelmetoder",
-                "D. En komponent kan aldrig trigga rendering manuellt",
-                "E. [Parameter] fungerar bara för string"
+                "En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "OnParametersSetAsync körs när parametrar sätts eller ändras",
+                "Blazor-komponenter kan inte ha asynkrona livscykelmetoder",
+                "En komponent kan aldrig trigga rendering manuellt",
+                "[Parameter] fungerar bara för string"
             },
             CorrectAnswers = new()
             {
-                "A. En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
-                "B. OnParametersSetAsync körs när parametrar sätts eller ändras"
+                "En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "OnParametersSetAsync körs när parametrar sätts eller ändras"
             }
         },
 
@@ -274,12 +274,12 @@
             Question = "4) Pull Request – praxis – vilket PR-upplägg underlättar granskning mest?",
             Answers = new()
             {
-                "A. En stor PR med flera funktioner och refaktoreringar",
-                "B. En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner",
-                "C. En PR utan beskrivning men med många commits",
-                "D. En PR som blandar kod, migrationsskript och config utan kommentarer"
+                "En stor PR med flera funktioner och refaktoreringar",
+                "En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner",
+                "En PR utan beskrivning men med många commits",
+                "En PR som blandar kod, migrationsskript och config utan kommentarer"
             },
-            CorrectAnswer = "B. En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner"
+            CorrectAnswer = "En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner"
         },
 
         // 5) HTTP – statuspolicy (2p) – välj 2
@@ -289,16 +289,16 @@
             Question = "5) HTTP – statuspolicy – välj två korrekta par: (Välj 2)",
             Answers = new()
             {
-                "A. POST som skapar resurs → 201 Created + Location",
-                "B. DELETE som lyckas → 204 No Content",
-                "C. Valideringsfel i indata → 409 Conflict",
-                "D. Ej autentiserad → 403 Forbidden",
-                "E. Resurs saknas vid GET → 400 Bad Request"
+                "POST som skapar resurs → 201 Created + Location",
+                "DELETE som lyckas → 204 No Content",
+                "Valideringsfel i indata → 409 Conflict",
+                "Ej autentiserad → 403 Forbidden",
+                "Resurs saknas vid GET → 400 Bad Request"
             },
             CorrectAnswers = new()
             {
-                "A. POST som skapar resurs → 201 Created + Location",
-                "B. DELETE som lyckas → 204 No Content"
+                "POST som skapar resurs → 201 Created + Location",
+                "DELETE som lyckas → 204 No Content"
             }
         },
 
@@ -309,12 +309,12 @@
             Question = "6) HTTP – mini-scenario – POST /authors försöker skapa en författare men namnet finns redan. Mest korrekta svar?",
             Answers = new()
             {
-                "A. 201 Created",
-                "B. 409 Conflict + ProblemDetails",
-                "C. 400 Bad Request",
-                "D. 204 No Content"
+                "201 Created",
+                "409 Conflict + ProblemDetails",
+                "400 Bad Request",
+                "204 No Content"
             },
-            CorrectAnswer = "B. 409 Conflict + ProblemDetails"
+            CorrectAnswer = "409 Conflict + ProblemDetails"
         },
 
         // 7) EF Core – relation & navigering (2p) – välj 2
@@ -324,16 +324,16 @@
             Question = "7) EF Core – relation & navigering – välj två korrekta påståenden: (Välj 2)",
             Answers = new()
             {
-                "A. En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
-                "B. Include / ThenInclude laddar relaterade entiteter i samma query",
-                "C. Projektion till DTO ska alltid undvikas",
-                "D. EF Core kräver att entiteter är record",
-                "E. FK placeras normalt på \"one\"-sidan"
+                "En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "Include / ThenInclude laddar relaterade entiteter i samma query",
+                "Projektion till DTO ska alltid undvikas",
+                "EF Core kräver att entiteter är record",
+                "FK placeras normalt på \"one\"-sidan"
             },
             CorrectAnswers = new()
             {
-                "A. En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
-                "B. Include / ThenInclude laddar relaterade entiteter i samma query"
+                "En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "Include / ThenInclude laddar relaterade entiteter i samma query"
             }
         },
 
@@ -344,12 +344,12 @@
             Question = "8) EF Core – AsNoTracking – vilket påstående stämmer?",
             Answers = new()
             {
-                "A. AsNoTracking() gör att entiteter spåras för ändringar",
-                "B. AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier",
-                "C. AsNoTracking() kör automatiskt SaveChanges()",
-                "D. AsNoTracking() aktiverar lazy loading"
+                "AsNoTracking() gör att entiteter spåras för ändringar",
+                "AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier",
+                "AsNoTracking() kör automatiskt SaveChanges()",
+                "AsNoTracking() aktiverar lazy loading"
             },
-            CorrectAnswer = "B. AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier"
+            CorrectAnswer = "AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier"
         },
 
         // 9) Autentisering – saknad/utgången token (1p) – enkelval
@@ -359,12 +359,12 @@
             Question = "9) Autentisering – saknad/utgången token – klienten anropar ett skyddat API utan giltig bearer-token. Vad svarar API:t?",
             Answers = new()
             {
-                "A. 401 Unauthorized",
-                "B. 403 Forbidden",
-                "C. 404 Not Found",
-                "D. 400 Bad Request"
+                "401 Unauthorized",
+                "403 Forbidden",
+                "404 Not Found",
+                "400 Bad Request"
             },
-            CorrectAnswer = "A. 401 Unauthorized"
+            CorrectAnswer = "401 Unauthorized"
         },
 
         // 10) async/await – grunder (2p) – välj 2
@@ -374,16 +374,16 @@
             Question = "10) async/await – grunder – vilka två påståenden stämmer? (Välj 2)",
             Answers = new()
             {
-                "A. await frigör tråden under I/O-väntan",
-                "B. async innebär per automatik parallell exekvering",
-                "C. En async-metod kan innehålla await",
-                "D. await startar alltid en ny tråd",
-                "E. await passar bäst för CPU-tunga beräkningar i UI-tråden"
+                "await frigör tråden under I/O-väntan",
+                "async innebär per automatik parallell exekvering",
+                "En async-metod kan innehålla await",
+                "await startar alltid en ny tråd",
+                "await passar bäst för CPU-tunga beräkningar i UI-tråden"
             },
             CorrectAnswers = new()
             {
-                "A. await frigör tråden under I/O-väntan",
-                "C. En async-metod kan innehålla await"
+                "await frigör tråden under I/O-väntan",
+                "En async-metod kan innehålla await"
             }
         },
 
@@ -394,16 +394,16 @@
             Question = "11) Policies & claims – välj två korrekta påståenden: (Välj 2)",
             Answers = new()
             {
-                "A. Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
-                "B. Policies ersätter alltid roller",
-                "C. Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare",
-                "D. Med policies behövs inte autentisering",
-                "E. Policies kan inte kombineras med roller"
+                "Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "Policies ersätter alltid roller",
+                "Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare",
+                "Med policies behövs inte autentisering",
+                "Policies kan inte kombineras med roller"
             },
             CorrectAnswers = new()
             {
-                "A. Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
-                "C. Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare"
+                "Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare"
             }
         },
 
@@ -414,12 +414,12 @@
             Question = "12) EF Core – vilken kod persisterar? – vilket alternativ leder faktiskt till att ändringar skrivs till databasen?",
             Answers = new()
             {
-                "A. Läsa en entitet, ändra ett fält och glömma SaveChanges()",
-                "B. Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()",
-                "C. Läsa med AsNoTracking(), ändra fält och köra await _ctx.SaveChangesAsync()",
-                "D. Skapa ny entitet i minnet och inte lägga till den i _ctx innan avslut"
+                "Läsa en entitet, ändra ett fält och glömma SaveChanges()",
+                "Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()",
+                "Läsa med AsNoTracking(), ändra fält och köra await _ctx.SaveChangesAsync()",
+                "Skapa ny entitet i minnet och inte lägga till den i _ctx innan avslut"
             },
-            CorrectAnswer = "B. Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()"
+            CorrectAnswer = "Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()"
         },
 
         // ═══ DEL B – Kortsvar (12p) ═══════════════════════════════════
