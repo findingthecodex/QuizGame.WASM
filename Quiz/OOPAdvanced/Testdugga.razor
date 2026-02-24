@@ -30,7 +30,7 @@
         <!-- Question card -->
         <MudCard Class="p-4" Style="max-width:650px; width:100%; margin:0.5rem auto; text-align:center; background-color:transparent">
 
-            <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight:700;">
+            <MudText Typo="Typo.h3" Class="mb-2" Style="font-weight:700;">
                 @questions[currentQuestion].Question
             </MudText>
 
@@ -75,7 +75,7 @@
                                        Class="@GetButtonClass(ans)"
                                        OnClick="@(() => SelectAnswer(ans))"
                                        Disabled="@answered"
-                                       Style="width:220px;height:70px;font-size:1rem;font-weight:600;border-radius:16px;">
+                                       Style="width:220px;height:70px;font-size:0.9rem;font-weight:600;border-radius:16px;">
                                 @ans
                             </MudButton>
                         </MudItem>
