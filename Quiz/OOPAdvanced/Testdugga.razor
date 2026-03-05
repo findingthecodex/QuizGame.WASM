@@ -1,0 +1,636 @@
+@page "/quiz/oopadvanced/testdugga"
+
+<div style="
+     min-height: 90vh;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding-top: 1rem;">
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-1">
+        Test-dugga
+    </MudText>
+    <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mb-4" Color="Color.Secondary">
+        Maxpoäng: 42p &nbsp;|&nbsp; Godkänt: 25p (60%)
+    </MudText>
+
+    @if (!showResult)
+    {
+        <!-- Progress -->
+        <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-2">
+            Fråga @(currentQuestion + 1) / @questions.Count
+        </MudText>
+
+        <!-- Section badge -->
+        <MudChip T="string" Color="Color.Info" Class="mb-3" Style="font-weight:700; font-size:1rem;">
+            @questions[currentQuestion].Section &nbsp;– @questions[currentQuestion].Points p
+        </MudChip>
+
+        <!-- Question card -->
+        <MudCard Class="p-4" Style="max-width:650px; width:100%; margin:0.5rem auto; text-align:center; background-color:transparent">
+
+            <MudText Typo="Typo.h3" Class="mb-2" Style="font-weight:700;">
+                @questions[currentQuestion].Question
+            </MudText>
+
+            @if (!string.IsNullOrWhiteSpace(questions[currentQuestion].CodeSnippet))
+            {
+                <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1" Color="Color.Info">Exempel:</MudText>
+                <MudPaper Class="pa-3 mb-3" Elevation="4"
+                          Style="background:#020617;color:#e5e7eb;font-family:'JetBrains Mono',monospace;font-size:0.85rem;text-align:left;border-radius:12px;overflow-x:auto;">
+                    <pre class="code-block">@((MarkupString)System.Net.WebUtility.HtmlEncode(questions[currentQuestion].CodeSnippet ?? ""))</pre>
+                </MudPaper>
+            }
+
+            <!-- Instruction label -->
+            <MudText Typo="Typo.subtitle2" Class="mb-3"
+                     Style="font-weight:600;color:#00bfff;text-shadow:0 0 6px rgba(0,150,255,0.8),0 0 12px rgba(0,120,255,0.6);">
+                @(questions[currentQuestion].IsTextAnswer
+                    ? "Skriv ditt svar (2 av nyckelorden ger poäng)"
+                    : questions[currentQuestion].IsMultiChoice
+                        ? "Välj alla som stämmer"
+                        : "Välj ett svar")
+            </MudText>
+
+            <!-- Text answer -->
+            @if (questions[currentQuestion].IsTextAnswer)
+            {
+                <MudTextField @bind-Value="textAnswer"
+                              Placeholder="Skriv här (1–3 meningar)"
+                              Variant="Variant.Filled"
+                              Lines="4"
+                              Class="mt-3"
+                              Style="width:100%;max-width:620px;" />
+            }
+            else
+            {
+                <MudGrid Justify="Justify.Center" Spacing="2">
+                    @foreach (var answer in questions[currentQuestion].Answers)
+                    {
+                        var ans = answer;
+                        <MudItem xs="6" Class="d-flex justify-center" @key="ans">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Class="@GetButtonClass(ans)"
+                                       OnClick="@(() => SelectAnswer(ans))"
+                                       Disabled="@answered"
+                                       Style="width:220px;height:70px;font-size:0.9rem;font-weight:600;border-radius:16px;">
+                                @ans
+                            </MudButton>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+
+            <!-- Submit for multi / text -->
+            @if (questions[currentQuestion].IsMultiChoice || questions[currentQuestion].IsTextAnswer)
+            {
+                <MudButton Class="mt-4 submit-glow"
+                           Variant="Variant.Filled"
+                           Color="Color.Inherit"
+                           Disabled="@(answered ||
+                                      (questions[currentQuestion].IsMultiChoice && selectedAnswers.Count == 0) ||
+                                      (questions[currentQuestion].IsTextAnswer && string.IsNullOrWhiteSpace(textAnswer)))"
+                           OnClick="SubmitAnswer">
+                    Submit Answer
+                </MudButton>
+            }
+
+            <!-- Feedback -->
+            @if (answered)
+            {
+                <MudText Typo="Typo.h6" Class="mt-3" Color="@feedbackColor">
+                    @feedbackMessage
+                </MudText>
+
+                <MudButton Class="mt-3"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="NextQuestion"
+                           Style="width:180px;height:50px;font-size:1rem;font-weight:700;border-radius:20px;">
+                    @(currentQuestion < questions.Count - 1 ? "Nästa fråga" : "Se resultat")
+                </MudButton>
+            }
+
+        </MudCard>
+
+        <!-- Running score -->
+        <MudText Typo="Typo.subtitle1" Class="mt-4">
+            Poäng hittills: @totalScore / @MaxPoints
+        </MudText>
+    }
+    else
+    {
+        <!-- ===== RESULT SCREEN ===== -->
+        <MudCard Class="p-6 mt-4" Style="max-width:560px;width:100%;text-align:center;background-color:transparent">
+
+            @if (Passed)
+            {
+                <MudText Typo="Typo.h2" Style="color:#00ff88;text-shadow:0 0 12px rgba(0,255,136,0.8);">
+                    ✅ Godkänd!
+                </MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.h2" Style="color:#ff4444;text-shadow:0 0 12px rgba(255,68,68,0.8);">
+                    ❌ Underkänd
+                </MudText>
+            }
+
+            <MudText Typo="Typo.h4" Class="mt-3">
+                Totalpoäng: @totalScore / @MaxPoints
+            </MudText>
+            <MudText Typo="Typo.h6" Class="mt-1" Color="Color.Secondary">
+                Gräns för godkänt: @PassScore p (60%)
+            </MudText>
+
+            <MudDivider Class="my-4" />
+
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700;" Class="mb-2">Resultat per del</MudText>
+
+            <MudSimpleTable Dense="true" Striped="true" Style="max-width:420px;margin:0 auto;">
+                <thead>
+                    <tr><th>Del</th><th>Poäng</th><th>Max</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Del A – Flervalsfrågor</td>
+                        <td>@sectionScores["Del A"]</td>
+                        <td>@sectionMax["Del A"]</td>
+                    </tr>
+                    <tr>
+                        <td>Del B – Kortsvar</td>
+                        <td>@sectionScores["Del B"]</td>
+                        <td>@sectionMax["Del B"]</td>
+                    </tr>
+                    <tr>
+                        <td>Del C – Kod &amp; resonemang</td>
+                        <td>@sectionScores["Del C"]</td>
+                        <td>@sectionMax["Del C"]</td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <MudButton Class="mt-6" Variant="Variant.Filled" Color="Color.Primary" OnClick="RestartQuiz">
+                Försök igen
+            </MudButton>
+
+        </MudCard>
+    }
+
+</div>
+
+<!-- Copyright -->
+<div style="margin-top:auto;padding-bottom:16px;width:100%;display:flex;justify-content:center;text-align:center;">
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+
+    string textAnswer = "";
+    HashSet<string> selectedAnswers = new(StringComparer.OrdinalIgnoreCase);
+    int currentQuestion = 0;
+    int totalScore = 0;
+    bool answered = false;
+    bool showResult = false;
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    const int MaxPoints = 42;
+    const int PassScore = 25; // 60% av 42 ≈ 25p
+
+    bool Passed => totalScore >= PassScore;
+
+    Dictionary<string, int> sectionScores = new() { ["Del A"] = 0, ["Del B"] = 0, ["Del C"] = 0 };
+    Dictionary<string, int> sectionMax    = new() { ["Del A"] = 0, ["Del B"] = 0, ["Del C"] = 0 };
+
+    // ── Questions ─────────────────────────────────────────────────────
+    List<QuizQuestion> questions = new()
+    {
+        // ═══ DEL A – Flervalsfrågor (18p) ════════════════════════════
+
+        // 1) Interface-kontrakt (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "1) Interface-kontrakt – vilket påstående beskriver interface-kontrakt korrekt?",
+            Answers = new()
+            {
+                "Ett interface kan innehålla implementerade instansmetoder i alla C#-versioner",
+                "Ett interface definierar en uppsättning metoder/properties som en klass kan implementera",
+                "Ett interface lagrar tillstånd för objektet som implementerar det",
+                "Ett interface tvingar fram trådsäkerhet i implementerande klasser"
+            },
+            CorrectAnswer = "Ett interface definierar en uppsättning metoder/properties som en klass kan implementera"
+        },
+
+        // 2) Abstrakta klasser & standardpraktik (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "2) Abstrakta klasser & standardpraktik – vad stämmer? (Välj 2)",
+            Answers = new()
+            {
+                "Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "Abstrakta klasser kan ha fält och konstruktorer",
+                "Abstrakta klasser används när implementationer inte delar intern hjälplogik",
+                "Abstrakta klasser kan aldrig ärvas",
+                "Abstrakta klasser kompileras inte till IL"
+            },
+            CorrectAnswers = new()
+            {
+                "Abstrakta klasser kan innehålla både abstrakta och konkreta metoder",
+                "Abstrakta klasser kan ha fält och konstruktorer"
+            }
+        },
+
+        // 3) Blazor – parametrar & livscykel (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "3) Blazor – parametrar & livscykel – vad stämmer om Blazor-komponenter och parametrar? (Välj 2)",
+            Answers = new()
+            {
+                "En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "OnParametersSetAsync körs när parametrar sätts eller ändras",
+                "Blazor-komponenter kan inte ha asynkrona livscykelmetoder",
+                "En komponent kan aldrig trigga rendering manuellt",
+                "[Parameter] fungerar bara för string"
+            },
+            CorrectAnswers = new()
+            {
+                "En komponent kan ta emot data via [Parameter] och reagera när värdet ändras",
+                "OnParametersSetAsync körs när parametrar sätts eller ändras"
+            }
+        },
+
+        // 4) Pull Request – praxis (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "4) Pull Request – praxis – vilket PR-upplägg underlättar granskning mest?",
+            Answers = new()
+            {
+                "En stor PR med flera funktioner och refaktoreringar",
+                "En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner",
+                "En PR utan beskrivning men med många commits",
+                "En PR som blandar kod, migrationsskript och config utan kommentarer"
+            },
+            CorrectAnswer = "En liten, avgränsad PR med länk till issue, beskrivning och testinstruktioner"
+        },
+
+        // 5) HTTP – statuspolicy (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "5) HTTP – statuspolicy – välj två korrekta par: (Välj 2)",
+            Answers = new()
+            {
+                "POST som skapar resurs → 201 Created + Location",
+                "DELETE som lyckas → 204 No Content",
+                "Valideringsfel i indata → 409 Conflict",
+                "Ej autentiserad → 403 Forbidden",
+                "Resurs saknas vid GET → 400 Bad Request"
+            },
+            CorrectAnswers = new()
+            {
+                "POST som skapar resurs → 201 Created + Location",
+                "DELETE som lyckas → 204 No Content"
+            }
+        },
+
+        // 6) HTTP – mini-scenario (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "6) HTTP – mini-scenario – POST /authors försöker skapa en författare men namnet finns redan. Mest korrekta svar?",
+            Answers = new()
+            {
+                "201 Created",
+                "409 Conflict + ProblemDetails",
+                "400 Bad Request",
+                "204 No Content"
+            },
+            CorrectAnswer = "409 Conflict + ProblemDetails"
+        },
+
+        // 7) EF Core – relation & navigering (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "7) EF Core – relation & navigering – välj två korrekta påståenden: (Välj 2)",
+            Answers = new()
+            {
+                "En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "Include / ThenInclude laddar relaterade entiteter i samma query",
+                "Projektion till DTO ska alltid undvikas",
+                "EF Core kräver att entiteter är record",
+                "FK placeras normalt på \"one\"-sidan"
+            },
+            CorrectAnswers = new()
+            {
+                "En Book kan ha AuthorId (FK) och navigation Author i many-to-one",
+                "Include / ThenInclude laddar relaterade entiteter i samma query"
+            }
+        },
+
+        // 8) EF Core – AsNoTracking (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "8) EF Core – AsNoTracking – vilket påstående stämmer?",
+            Answers = new()
+            {
+                "AsNoTracking() gör att entiteter spåras för ändringar",
+                "AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier",
+                "AsNoTracking() kör automatiskt SaveChanges()",
+                "AsNoTracking() aktiverar lazy loading"
+            },
+            CorrectAnswer = "AsNoTracking() kan förbättra läsprestanda vid rena read-scenarier"
+        },
+
+        // 9) Autentisering – saknad/utgången token (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "9) Autentisering – saknad/utgången token – klienten anropar ett skyddat API utan giltig bearer-token. Vad svarar API:t?",
+            Answers = new()
+            {
+                "401 Unauthorized",
+                "403 Forbidden",
+                "404 Not Found",
+                "400 Bad Request"
+            },
+            CorrectAnswer = "401 Unauthorized"
+        },
+
+        // 10) async/await – grunder (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "10) async/await – grunder – vilka två påståenden stämmer? (Välj 2)",
+            Answers = new()
+            {
+                "await frigör tråden under I/O-väntan",
+                "async innebär per automatik parallell exekvering",
+                "En async-metod kan innehålla await",
+                "await startar alltid en ny tråd",
+                "await passar bäst för CPU-tunga beräkningar i UI-tråden"
+            },
+            CorrectAnswers = new()
+            {
+                "await frigör tråden under I/O-väntan",
+                "En async-metod kan innehålla await"
+            }
+        },
+
+        // 11) Policies & claims (2p) – välj 2
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 2,
+            Question = "11) Policies & claims – välj två korrekta påståenden: (Välj 2)",
+            Answers = new()
+            {
+                "Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "Policies ersätter alltid roller",
+                "Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare",
+                "Med policies behövs inte autentisering",
+                "Policies kan inte kombineras med roller"
+            },
+            CorrectAnswers = new()
+            {
+                "Policies kan utvärdera claims och annan kontext för att avgöra åtkomst",
+                "Resursbaserad auktorisering kan begränsa åtkomst beroende på resursens ägare"
+            }
+        },
+
+        // 12) EF Core – vilken kod persisterar? (1p) – enkelval
+        new QuizQuestion
+        {
+            Section = "Del A", Points = 1,
+            Question = "12) EF Core – vilken kod persisterar? – vilket alternativ leder faktiskt till att ändringar skrivs till databasen?",
+            Answers = new()
+            {
+                "Läsa en entitet, ändra ett fält och glömma SaveChanges()",
+                "Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()",
+                "Läsa med AsNoTracking(), ändra fält och köra await _ctx.SaveChangesAsync()",
+                "Skapa ny entitet i minnet och inte lägga till den i _ctx innan avslut"
+            },
+            CorrectAnswer = "Läsa en spårad entitet, ändra ett fält och köra await _ctx.SaveChangesAsync()"
+        },
+
+        // ═══ DEL B – Kortsvar (12p) ═══════════════════════════════════
+
+        // 13) Grundläggande Git — commit vs branch (1p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 1,
+            IsTextAnswer = true,
+            Question = "13) Grundläggande Git — commit vs branch (1p): Förklara kort skillnaden mellan en commit och en branch. (1–2 meningar)",
+            Keywords = new() { "commit", "snapshot", "branch", "pekare", "gren", "version", "spara", "förgrening" }
+        },
+
+        // 14) Statuskoder i praktiken (3p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 3,
+            IsTextAnswer = true,
+            Question = "14) Statuskoder i praktiken (3p): Ange två HTTP-statuskoder (inte DELETE) och beskriv kort när varje ska användas enligt kursens statuskodspolicy. (2–3 meningar per kod)",
+            Keywords = new() { "200", "201", "400", "401", "403", "404", "409", "created", "ok", "bad request", "unauthorized", "forbidden", "not found", "conflict" }
+        },
+
+        // 15) Komposition i praktiken (3p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 3,
+            IsTextAnswer = true,
+            Question = "15) Komposition i praktiken (3p): Ge ett eget exempel där komposition (\"har-en/del-av\") är bättre än arv (\"är-en\"), och motivera varför. (2–4 meningar)",
+            Keywords = new() { "komposition", "har-en", "arv", "är-en", "flexibel", "utbytbar", "interface", "beroende", "lös koppling" }
+        },
+
+        // 16) ProblemDetails (3p) – fritext
+        new QuizQuestion
+        {
+            Section = "Del B", Points = 3,
+            IsTextAnswer = true,
+            Question = "16) ProblemDetails (3p): Nämn två fält som ett ProblemDetails-objekt normalt innehåller och hur klienten kan använda dem. (2–3 meningar)",
+            Keywords = new() { "title", "status", "detail", "type", "instance", "problemdetails", "fält", "felkod", "felmeddelande" }
+        },
+
+        // ═══ DEL C – Kod & resonemang (12p) ══════════════════════════
+
+        // 17) EF Core – när körs SQL? (6p) – fritext med kodsnippet
+        new QuizQuestion
+        {
+            Section = "Del C", Points = 6,
+            IsTextAnswer = true,
+            Question = "17) EF Core – när körs SQL? (6p)\na) När körs SQL i förhållande till denna metod?\nb) Vad händer om anroparen direkt gör .ToList() på resultatet?\nc) Nämn en fördel med att returnera IQueryable om ett annat lager ska bygga vidare på filtrering.",
+            CodeSnippet =
+@"public IQueryable<ProductDto> GetCheapProducts(AppDbContext ctx, decimal maxPrice)
+{
+    return ctx.Products
+              .Where(p => p.Price <= maxPrice)
+              .Select(p => new ProductDto(p.Id, p.Name, p.Price));
+}",
+            Keywords = new() { "iqueryable", "tolist", "sql", "deferred", "uppskjuten", "exekvering", "query", "filtrering", "databas", "lazy" }
+        },
+
+        // 18) Blazor – parametergenererad laddning (6p) – fritext med kodsnippet
+        new QuizQuestion
+        {
+            Section = "Del C", Points = 6,
+            IsTextAnswer = true,
+            Question = "18) Blazor – parametergenererad laddning (6p)\na) Varför kan detta missa att ladda om när CategoryId ändras?\nb) Var ska laddningen ske för att reagera på parameterändringar?\nc) Hur undviker du onödiga omladdningar (nämn en enkel guard-strategi)?",
+            CodeSnippet =
+@"@code {
+    [Parameter] public int CategoryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync(CategoryId); // körs bara en gång
+    }
+
+    private Task LoadAsync(int id) => _service.LoadAsync(id);
+}",
+            Keywords = new() { "onparameterssetasync", "oninitializedasync", "parameter", "ändras", "guard", "previousid", "omladdning", "livscykel", "reagera" }
+        },
+    };
+
+    // ── Lifecycle ─────────────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        ShuffleAnswers();
+        BuildSectionMax();
+    }
+
+    void ShuffleAnswers()
+    {
+        var rnd = new Random();
+        foreach (var q in questions)
+        {
+            if (q.Answers != null && q.Answers.Count > 1)
+                q.Answers = q.Answers.OrderBy(_ => rnd.Next()).ToList();
+        }
+    }
+
+    void BuildSectionMax()
+    {
+        sectionMax["Del A"] = 0; sectionMax["Del B"] = 0; sectionMax["Del C"] = 0;
+        foreach (var q in questions)
+        {
+            var sec = q.Section ?? "Del A";
+            if (sectionMax.ContainsKey(sec)) sectionMax[sec] += q.Points;
+        }
+    }
+
+    // ── Answer logic ──────────────────────────────────────────────────
+    void SelectAnswer(string answer)
+    {
+        if (answered) return;
+        var question = questions[currentQuestion];
+
+        if (!question.IsMultiChoice)
+        {
+            selectedAnswers.Clear();
+            selectedAnswers.Add(answer);
+            SubmitAnswer();
+            return;
+        }
+
+        if (selectedAnswers.Contains(answer)) selectedAnswers.Remove(answer);
+        else selectedAnswers.Add(answer);
+        StateHasChanged();
+    }
+
+    void SubmitAnswer()
+    {
+        answered = true;
+        var question = questions[currentQuestion];
+        var sec = question.Section ?? "Del A";
+
+        if (question.IsTextAnswer)
+        {
+            var input = textAnswer?.ToLowerInvariant() ?? "";
+            int hits = question.Keywords?.Count(k => input.Contains((k ?? "").ToLowerInvariant())) ?? 0;
+            bool ok = hits >= 2;
+            if (ok)
+            {
+                totalScore += question.Points;
+                sectionScores[sec] += question.Points;
+                feedbackMessage = $"Bra svar! +{question.Points}p ✅";
+                feedbackColor = Color.Success;
+            }
+            else
+            {
+                feedbackMessage = "För kort / saknar viktiga begrepp ❌ +0p";
+                feedbackColor = Color.Error;
+            }
+            return;
+        }
+
+        var correctSet = GetCorrectSet(question);
+        bool isCorrect = selectedAnswers.Count == correctSet.Count && selectedAnswers.All(a => correctSet.Contains(a));
+
+        if (isCorrect)
+        {
+            totalScore += question.Points;
+            sectionScores[sec] += question.Points;
+            feedbackMessage = $"Rätt! +{question.Points}p 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            feedbackMessage = $"Fel 😢 +0p  |  Rätt: {string.Join(", ", correctSet)}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+        textAnswer = "";
+
+        if (currentQuestion < questions.Count - 1) currentQuestion++;
+        else showResult = true;
+    }
+
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        totalScore = 0;
+        showResult = false;
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+        textAnswer = "";
+        sectionScores = new() { ["Del A"] = 0, ["Del B"] = 0, ["Del C"] = 0 };
+        ShuffleAnswers();
+    }
+
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
+
+        var correct = GetCorrectSet(questions[currentQuestion]);
+        if (correct.Contains(answer)) return "glow-button glow-selected";
+        if (selectedAnswers.Contains(answer)) return "glow-button glow-wrong";
+        return "glow-button";
+    }
+
+    HashSet<string> GetCorrectSet(QuizQuestion q)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (q == null) return set;
+        if (q.CorrectAnswers != null && q.CorrectAnswers.Count > 0)
+            foreach (var a in q.CorrectAnswers) set.Add(a);
+        else if (!string.IsNullOrWhiteSpace(q.CorrectAnswer))
+            set.Add(q.CorrectAnswer);
+        return set;
+    }
+}
