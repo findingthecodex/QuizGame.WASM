@@ -1,0 +1,544 @@
+@page "/quiz/swedishkings"
+
+@* <div style="text-align:center;"> *@
+@*     <h1>Nya frågor på väg</h1> *@
+@* </div> *@
+
+<div style="
+     min-height: 90vh;  
+     display: flex;  
+     flex-direction: column;  
+     align-items: center; 
+     padding-top: 1rem;"> 
+
+    <!-- Topic -->
+    <MudText Typo="Typo.h1" Align="Align.Center" Class="mb-4">
+        Svenska kungar 👑
+    </MudText>
+
+    <!-- Show Result -->
+    <MudText Typo="Typo.h2" Align="Align.Center" Class="mb-4">
+        @(currentQuestion + 1)/@questions.Count
+    </MudText>
+
+    @if (showResult)
+    {
+        <MudCard Class="p-6" Style="max-width:500px; text-align:center; background-color: transparent">
+            <MudText Typo="Typo.h2">🎉 Quiz Completed!</MudText>
+            <MudText Typo="Typo.h3">
+                Score: @score / @questions.Count
+            </MudText>
+
+            <MudButton Class="mt-4" OnClick="RestartQuiz">
+                Play Again
+            </MudButton>
+        </MudCard>
+    }
+    else
+    {
+        <!-- Här ligger ditt nuvarande quiz -->
+
+
+    <!-- The Question -->
+    <MudCard Class="p-4" Style="max-width:600px; margin: 1.5rem auto; text-align: center; background-color:transparent">
+
+        <!-- Question -->
+        <MudText Typo="Typo.h2" Class="mb-1">
+            @questions[currentQuestion].Question
+        </MudText>
+
+        @if (!string.IsNullOrWhiteSpace(questions[currentQuestion].CodeSnippet))
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1" Color="Color.Info">
+                Exempel:
+            </MudText>
+
+            <MudPaper Class="pa-3 mb-3"
+                      Elevation="4"
+                      Style="
+        background:#020617;
+        color:#e5e7eb;
+        font-family: 'JetBrains Mono', monospace;
+        font-size:0.9rem;
+        text-align:left;
+        border-radius:12px;
+        overflow-x:auto;
+        max-width:600px;
+      ">
+
+                <pre class="code-block">@((MarkupString)System.Net.WebUtility.HtmlEncode(questions[currentQuestion].CodeSnippet ?? ""))</pre>
+
+            </MudPaper>
+        }
+
+        <!-- Info under question -->
+        <MudText Typo="Typo.subtitle2"
+                 Class="mb-3"
+                 Style="
+            font-weight:600;
+            color:#00bfff;
+            text-shadow:
+              0 0 6px rgba(0,150,255,0.8),
+              0 0 12px rgba(0,120,255,0.6),
+              0 0 20px rgba(0,90,255,0.4);
+         ">
+
+            @(
+            questions[currentQuestion].IsTextAnswer
+                ? "Skriv ditt svar"
+                : questions[currentQuestion].IsMultiChoice
+                    ? "Välj alla som stämmer"
+                    : "Välj ett svar"
+            )
+
+        </MudText>
+
+        <!-- Answer choices / Text answer -->
+        @if (questions[currentQuestion].IsTextAnswer)
+        {
+            <MudTextField
+                @bind-Value="textAnswer"
+                Placeholder="Skriv här (1–3 meningar)"
+                Variant="Variant.Filled"
+                Lines="3"
+                Class="mt-3"
+                Style="width: 100%; max-width:600px;" />
+        }
+        else
+        {
+            <MudGrid Justify="Justify.Center" Spacing="2">
+
+                @for (int i = 0; i < questions[currentQuestion].Answers.Count; i++)
+                {
+                    var answer = questions[currentQuestion].Answers[i];
+
+                    <MudItem xs="6" class="d-flex justify-center" @key="answer">
+
+                        <MudButton
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="@GetButtonClass(answer)"
+                            OnClick="@(() => SelectAnswer(answer))"
+                            Disabled="@answered"
+                            Style="
+                        width: 220px;
+                        height: 70px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        border-radius: 16px;
+                    ">
+
+                            @answer
+
+                        </MudButton>
+
+                    </MudItem>
+                }
+
+            </MudGrid>
+        }
+
+        @if (questions[currentQuestion].IsMultiChoice || questions[currentQuestion].IsTextAnswer)
+        {
+            <MudButton
+                Class="mt-4 submit-glow"
+                Variant="Variant.Filled"
+                Color="Color.Inherit"
+                Disabled="@(answered ||
+                          (questions[currentQuestion].IsMultiChoice && selectedAnswers.Count == 0) ||
+                          (questions[currentQuestion].IsTextAnswer && string.IsNullOrWhiteSpace(textAnswer)))"
+                OnClick="SubmitAnswer">
+
+                Submit Answer
+            </MudButton>
+        }
+
+        <!-- Correct or Wrong text -->
+        @if (answered)
+        {
+            <MudText Typo="Typo.h2" Class="mt-3" Color="@feedbackColor">
+                @feedbackMessage
+            </MudText>
+
+            <!-- Next Question button -->
+            <MudButton
+                Class="mt-3"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="NextQuestion"
+                Style="
+                        width: 180px;
+                        height: 50px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        border-radius: 20px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.7);
+                ">
+                Next Question
+            </MudButton>
+        }
+
+
+
+    </MudCard>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4">
+        Score: @score
+    </MudText>
+    }
+
+</div>
+
+<!-- Copyright längst ner -->
+<div style="
+    margin-top: auto;
+    padding-bottom: 16px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;">
+
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        © 2026 FindingTheCode. All rights reserved.
+    </MudText>
+</div>
+
+@code {
+
+    string textAnswer = "";
+
+    HashSet<string> selectedAnswers = new(StringComparer.OrdinalIgnoreCase);
+
+    int totalQuestions = 10;
+    bool showResult = false;
+
+    int currentQuestion = 0;
+    int score = 0;
+    bool answered = false;
+
+    string feedbackMessage = "";
+    Color feedbackColor = Color.Default;
+
+    protected override void OnInitialized()
+    {
+        ShuffleQuestions();
+    }
+
+    /// <summary>
+    ///  Shuffles Questions and answer buttons - multi answers
+    /// </summary>
+    // csharp
+    void ShuffleQuestions()
+    {
+        var rnd = new Random();
+
+        questions = questions
+            .OrderBy(_ => rnd.Next())
+            .Select(q => new QuizQuestion
+            {
+                Question = q.Question,
+                CorrectAnswer = q.CorrectAnswer,
+                CorrectAnswers = q.CorrectAnswers.Count > 0
+                    ? q.CorrectAnswers.ToList()
+                    : (!string.IsNullOrWhiteSpace(q.CorrectAnswer) ? new List<string> { q.CorrectAnswer } : new List<string>()),
+                Answers = q.Answers.OrderBy(_ => rnd.Next()).ToList(),
+                IsTextAnswer = q.IsTextAnswer,
+                CodeSnippet = q.CodeSnippet,
+                Keywords = q.Keywords.ToList()
+            })
+            .Take(totalQuestions)
+            .ToList();
+    }
+
+
+    List<QuizQuestion> questions = new()
+    {
+        
+    // --- ENKLA FRÅGOR ---
+
+    new QuizQuestion
+    {
+        Question = "Vem kallas ofta för 'landsfader' och valdes till kung i Strängnäs den 6 juni 1523?",
+        Answers = new() { "Gustav Vasa", "Erik XIV", "Karl IX", "Gustav II Adolf" },
+        CorrectAnswers = new() { "Gustav Vasa" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken dynasti (kungasläkt) tillhör Sveriges nuvarande kung, Carl XVI Gustaf?",
+        Answers = new() { "Vasaätten", "Bernadotte", "Pfalziska ätten", "Huset Holstein-Gottorp" },
+        CorrectAnswers = new() { "Bernadotte" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken drottning abdikerade för att flytta till Rom och konvertera till katolicismen?",
+        Answers = new() { "Drottning Kristina", "Drottning Silvia", "Ulrika Eleonora", "Lovisa Ulrika" },
+        CorrectAnswers = new() { "Drottning Kristina" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken kung dog i slaget vid Lützen 1632?",
+        Answers = new() { "Karl XII", "Gustav II Adolf", "Gustav III", "Karl X Gustav" },
+        CorrectAnswers = new() { "Gustav II Adolf" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken kung mördades på en maskeradbal 1792?",
+        Answers = new() { "Gustav III", "Karl XII", "Gustav IV Adolf", "Adolf Fredrik" },
+        CorrectAnswers = new() { "Gustav III" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vad hette den franske generalen som blev vald till svensk tronföljare 1810?",
+        Answers = new() { "Jean Baptiste Bernadotte", "Napoleon Bonaparte", "Ludvig XIV", "Charles de Gaulle" },
+        CorrectAnswers = new() { "Jean Baptiste Bernadotte" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Sverige var i union med ett annat land mellan 1814 och 1905. Vilket?",
+        Answers = new() { "Danmark", "Finland", "Norge", "Tyskland" },
+        CorrectAnswers = new() { "Norge" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken kung är känd som 'Grårocken' och införde det karolinska enväldet?",
+        Answers = new() { "Karl XI", "Karl XII", "Karl X Gustav", "Gustav Vasa" },
+        CorrectAnswers = new() { "Karl XI" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vem efterträdde Gustav Vasa på tronen?",
+        Answers = new() { "Erik XIV", "Johan III", "Karl IX", "Gustav II Adolf" },
+        CorrectAnswers = new() { "Erik XIV" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vad kallas den lag som bestämmer vem som ska ärva den svenska tronen?",
+        Answers = new() { "Regeringsformen", "Successionsordningen", "Tryckfrihetsförordningen", "Jordabalken" },
+        CorrectAnswers = new() { "Successionsordningen" }
+    },
+
+    // --- MEDIUM FRÅGOR ---
+
+    new QuizQuestion
+    {
+        Question = "Vilka av dessa kungar tillhörde Vasaätten? (Välj alla som stämmer)",
+        Answers = new() { "Gustav Vasa", "Erik XIV", "Johan III", "Karl XIV Johan", "Gustaf V" },
+        CorrectAnswers = new() { "Gustav Vasa", "Erik XIV", "Johan III" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken kung dog efter att ha ätit en enorm måltid med bland annat semlor?",
+        CodeSnippet = "Meny: Hetvägg, surkål, kött med rovor, hummer, kaviar.",
+        Answers = new() { "Adolf Fredrik", "Fredrik I", "Gustav IV Adolf", "Karl XIII" },
+        CorrectAnswers = new() { "Adolf Fredrik" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Sverige förlorade Finland 1809. Vem var kung vid detta kritiska tillfälle?",
+        Answers = new() { "Gustav III", "Gustav IV Adolf", "Karl XIII", "Karl XIV Johan" },
+        CorrectAnswers = new() { "Gustav IV Adolf" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilka regenter har suttit på tronen i mer än 40 år? (Välj alla som stämmer)",
+        Answers = new() { "Gustav V", "Carl XVI Gustaf", "Karl XII", "Gustav III" },
+        CorrectAnswers = new() { "Gustav V", "Carl XVI Gustaf" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilket år ändrades lagen så att även kvinnor fick sitta på tronen med samma rätt som män?",
+        CodeSnippet = "Kvinna i tronföljden: 19XX",
+        Answers = new() { "1974", "1980", "1992", "2000" },
+        CorrectAnswers = new() { "1980" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken kung tvingades spendera flera år i 'Kalabaliken i Bender'?",
+        Answers = new() { "Karl XII", "Karl XI", "Gustav II Adolf", "Karl X Gustav" },
+        CorrectAnswers = new() { "Karl XII" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken regent genomförde reformationen och gjorde Sverige protestantiskt?",
+        Answers = new() { "Gustav Vasa", "Johan III", "Sigismund", "Drottning Kristina" },
+        CorrectAnswers = new() { "Gustav Vasa" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vem var den sista regerande drottningen innan lagen ändrades 1980?",
+        Answers = new() { "Ulrika Eleonora d.y.", "Drottning Kristina", "Lovisa Ulrika", "Drottning Victoria" },
+        CorrectAnswers = new() { "Ulrika Eleonora d.y." }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilket av följande var Gustav II Adolfs latinska valspråk?",
+        CodeSnippet = "Valspråk: G_ _ _ _ _ _ _ _ _ P _ _ _ _ _",
+        Answers = new() { "Cum Deo et Victricibus Armis", "Iehovah Solatium Meum", "För Sverige i tiden", "Plikten framför allt" },
+        CorrectAnswers = new() { "Cum Deo et Victricibus Armis" }
+    },
+
+    new QuizQuestion
+    {
+        Question = "Vilken händelse ledde till att huset Bernadotte kom till makten?",
+        Answers = new() 
+        { 
+            "Statskuppen 1809 och brist på tronföljare", 
+            "Ett demokratiskt val i riksdagen 1900", 
+            "Att Napoleon invaderade Stockholm", 
+            "Ett giftemål mellan Vasa och Bernadotte" 
+        },
+        CorrectAnswers = new() { "Statskuppen 1809 och brist på tronföljare" }
+    }
+    };
+
+
+    void SelectAnswer(string answer)
+    {
+        if (answered)
+            return;
+
+        var question = questions[currentQuestion];
+
+        if (!question.IsMultiChoice)
+        {
+            // SINGLE choice → välj + rätta direkt
+            selectedAnswers.Clear();
+            selectedAnswers.Add(answer);
+
+            SubmitAnswer();
+            return;
+        }
+
+        // MULTI choice → toggle
+        if (selectedAnswers.Contains(answer))
+            selectedAnswers.Remove(answer);
+        else
+            selectedAnswers.Add(answer);
+
+        StateHasChanged();
+    }
+
+    void NextQuestion()
+    {
+        answered = false;
+        feedbackMessage = "";
+        selectedAnswers.Clear();
+        textAnswer = "";
+
+        if (currentQuestion < questions.Count - 1)
+            currentQuestion++;
+        else
+            showResult = true;
+    }
+
+    void RestartQuiz()
+    {
+        currentQuestion = 0;
+        score = 0;
+        showResult = false;
+        ShuffleQuestions();
+    }
+
+    string GetButtonClass(string answer)
+    {
+        if (!answered)
+            return selectedAnswers.Contains(answer) ? "glow-button glow-preselect" : "glow-button";
+
+        // after submission
+        var correct = GetCorrectSet(questions[currentQuestion]);
+
+        if (correct.Contains(answer))
+            return "glow-button glow-selected"; // correct
+
+        if (selectedAnswers.Contains(answer) && !correct.Contains(answer))
+            return "glow-button glow-wrong"; // wrongly selected
+
+        return "glow-button";
+    }
+
+    void SubmitAnswer()
+    {
+        answered = true;
+
+        var question = questions[currentQuestion];
+
+        // TEXT ANSWER
+        if (question.IsTextAnswer)
+        {
+            var input = textAnswer.ToLowerInvariant();
+
+            int hits = question.Keywords.Count(k => input.Contains(k.ToLowerInvariant()));
+
+            bool isCorrect = hits >= 2;
+
+            if (isCorrect)
+            {
+                score++;
+                feedbackMessage = "Bra svar! ✅";
+                feedbackColor = Color.Success;
+            }
+            else
+            {
+                feedbackMessage = "För kort / saknar viktiga begrepp ❌";
+                feedbackColor = Color.Error;
+            }
+
+            return;
+        }
+
+        // MULTI / SINGLE choice logic - normalize correct answers
+        var correctSet = GetCorrectSet(question);
+
+        bool isCorrectMulti =
+            selectedAnswers.Count == correctSet.Count &&
+            selectedAnswers.All(a => correctSet.Contains(a));
+
+        if (isCorrectMulti)
+        {
+            score++;
+            feedbackMessage = "Correct! 🎉";
+            feedbackColor = Color.Success;
+        }
+        else
+        {
+            var correctText = string.Join(", ", correctSet);
+
+            feedbackMessage = $"Wrong 😢 Correct: {correctText}";
+            feedbackColor = Color.Error;
+        }
+    }
+
+    HashSet<string> GetCorrectSet(QuizQuestion q)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (q.CorrectAnswers.Count > 0)
+        {
+            foreach (var a in q.CorrectAnswers)
+                set.Add(a);
+        }
+        else if (!string.IsNullOrWhiteSpace(q.CorrectAnswer))
+        {
+            set.Add(q.CorrectAnswer);
+        }
+
+        return set;
+    }
+}
